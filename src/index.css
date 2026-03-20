@@ -1,0 +1,228 @@
+/* Global Design System - Warm Futuristic */
+:root {
+  /* Kinetic Palette - High Contrast & Vibrancy */
+  --primary: #FF7E5F;
+  --primary-glow: rgba(255, 126, 95, 0.4);
+  --accent: #FEB47B;
+  --secondary: #6C5CE7;
+
+  /* Spatial Theme Tokens */
+  --bg-gradient: linear-gradient(135deg, #fff0ea 0%, #f3eafa 100%);
+  --bg-dark: #0f0c29;
+  --text-main: #2D3436;
+  --text-sub: #636E72;
+
+  /* Glassmorphism 2.0 - Deep Layering */
+  --card-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-reflection: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 100%);
+
+  /* Layout Spacing - Increased for "Breath" */
+  --page-padding: 32px;
+  --grid-gap: 32px;
+  --card-padding: 28px;
+  --section-margin: 48px;
+
+  /* Layered Shadows (Spatial Depth) */
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 50px -12px rgba(0, 0, 0, 0.15);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+
+  font-family: 'Outfit', 'Poppins', sans-serif;
+  line-height: 1.7;
+  /* Increased for breath */
+  font-weight: 400;
+  color-scheme: light;
+}
+
+.dark-theme {
+  --bg-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  --text-main: #ffffff;
+  --text-sub: #a0aec0;
+  --card-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --primary: #a29bfe;
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  min-height: 100vh;
+  background: #0f0c29;
+  /* Dark fallback background for the desktop edges */
+  color: var(--text-main);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  /* ABSOLUTELY NO SCROLLING AT BODY LEVEL */
+  /* Always display the app in the center */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Kinetic Background Drift */
+body::before {
+  content: "";
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, var(--primary-glow) 0%, transparent 70%);
+  z-index: -1;
+  animation: drift 20s infinite linear;
+  opacity: 0.4;
+}
+
+@keyframes drift {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#root {
+  width: 100%;
+  max-width: 480px;
+  /* Constrain to mobile width */
+  height: 100dvh;
+  /* Use dynamic viewport height */
+  max-height: 100vh;
+  position: relative;
+  background: var(--bg-gradient);
+  /* Move gradient strictly inside the mobile view */
+  background-attachment: fixed;
+  overflow: hidden;
+  /* ABSOLUTELY NO SCROLLING AT ROOT LEVEL */
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+  /* Separate it visually from the desktop background */
+}
+
+/* Typography */
+h1,
+h2,
+h3 {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text-main);
+  transition: color 0.4s ease;
+}
+
+.dark-theme h1,
+.dark-theme h2,
+.dark-theme h3 {
+  text-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Animations */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 126, 95, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 126, 95, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 126, 95, 0);
+  }
+}
+
+/* Glassmorphism 2.0 Classes */
+.glass-panel {
+  background: var(--card-bg);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+}
+
+.glass-panel:active {
+  transform: scale(0.97);
+  box-shadow: var(--shadow-sm), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.glass-panel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--glass-reflection);
+  pointer-events: none;
+}
+
+/* Fluid List Animations */
+.stagger-item {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Standard Animations */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 126, 95, 0.3);
+  border-radius: 10px;
+}

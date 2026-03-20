@@ -1,0 +1,715 @@
+--- Mandeep Report (Sample) ---
+ 
+  
+  
+ 
+  
+Milestone 5 – Draft Report
+ 
+ 
+ 
+ 
+Name: Mandeep Panta              Supervisor: Santosh Sapkota  
+Student ID: 2408214               Reader: Biraj Dulal
+Course: Project and Professionalism   Submission Date: 2026-03-06
+University email address: m.panta@wlv.ac.uk
+Abstract
+Small and medium-sized enterprises (SMEs) face significant inventory management challenges due to limited technological infrastructure and reliance on manual record-keeping. These constraints often result in stock discrepancies, delayed updates, stockouts, excess inventory, and reduced operational efficiency. As SMEs expand, the need for a structured, automated, and real-time inventory management solution becomes critical.
+This project presents the design and development of a database-driven Inventory Management System (IMS) aimed at improving stock visibility, operational control, and decision-making. Developed using a design science methodology, the system integrates role-based access control, transaction-based stock updates, and real-time monitoring. Core functionalities include product and inventory management, order processing, billing, return management, inventory adjustment, audit logging, and reporting dashboards.
+Evaluation results demonstrate improved stock tracking accuracy, data integrity, and workflow efficiency. The findings indicate that implementing a structured IMS enhances managerial decision-making, reduces human error, and supports sustainable growth for SMEs. The system’s modular and scalable design ensures adaptability to evolving business needs and technological environments.
+Table of Contents
+Introduction1
+Aims and Objectives2
+Artefact3
+Functional Decomposition Diagram:5
+Sub-System 1: Authentication and Authorization5
+Sub-System 2: Product and Inventory Management6
+Sub-System 3: Order Management6
+Sub-System 4: Billing and Payment Management7
+Sub-System 5: Return Management and Approval Workflow8
+Sub-System 6: Inventory Adjustment and Audit Logging8
+Sub-System 7: System Integration and Reporting8
+Sub-System 8: Final Validation and User Acceptance Support9
+Academic Questions10
+Literature Review11
+Adoption and Automation in SMEs11
+Technology, Optimization, and Information Systems11
+Human and Organizational Factors12
+Inventory Control and Performance Outcomes12
+Peer Review of Similar Systems13
+Synthesis and Research Gap14
+Comparative Analysis Table15
+Project Methodology17
+Tools and Technologies18
+Artefact Design19
+Software Requirements Specification (SRS)19
+Use Case Diagram:21
+User Flowchart:22
+Activity Diagrams:23
+Login & Security Activity23
+Dashboard Activity24
+Roles & Permission Activity25
+Inventory Activity25
+Inventory Adjustment Activity26
+Purchase Order Activity27
+Return Management Activity28
+Class Diagram:29
+Component Diagram:30
+Sequence Diagrams:30
+Login & Authorization Sequence Diagram30
+Inventory Adjustment Sequence Diagram31
+Return Management Sequence Diagram32
+Testing33
+Sub-System-1: Authentication & Authorization33
+Functional Requirements33
+Software Requirements34
+Expected Deliverables34
+Sub System 1 Test Cases34
+Sub-System-2: Product & Inventory Management35
+Functional Requirements35
+Software Requirements35
+Expected Deliverables35
+Sub-System-3: Order Management36
+Functional Requirements36
+Software Requirements36
+Expected Deliverables36
+Sub System 3 Test Cases36
+Sub-System-4: Billing & Payment Management37
+Functional Requirements37
+Software Requirements37
+Expected Deliverables37
+Sub System 4 Test Cases38
+Sub-System-5: Return Management & Approval Workflow38
+Functional Requirements38
+Software Requirements38
+Expected Deliverables38
+Sub System 5 Test Cases39
+Sub-System-6: Inventory Adjustment & Audit Logging39
+Functional Requirements39
+Software Requirements39
+Expected Deliverables40
+Sub System 6 Test Cases40
+Sub-System-7: System Integration & Reporting40
+Functional Requirements40
+Software Requirements40
+Expected Deliverables41
+Sub System 7 Test Cases41
+Sub-System-8: Final Validation & User Acceptance41
+Functional Requirements41
+Software Requirements42
+Expected Deliverables42
+Sub System 8 Test Cases42
+Gantt Chart43
+Conclusion44
+Critical Evaluation of Project Management45
+Evidence of Project Management46
+References50
+Table of Figures
+Figure 1 Functional Decomposition Diagram (FDD)5
+Figure 2 Use Case Diagram21
+Figure 3 User Flowchart22
+Figure 4 Login & Security Activity23
+Figure 5 Dashboard Activity24
+Figure 6 Roles & Permission Activity25
+Figure 7 Inventory Activity25
+Figure 8 Inventory Adjustment Activity26
+Figure 9 Purchase Order Activity27
+Figure 10 Return Management Activity28
+Figure 11 Class Diagram29
+Figure 12 Component Diagram30
+Figure 13 Login & Authorization Sequence Diagram30
+Figure 14 Inventory Adjustment Sequence Diagram31
+Figure 15 Return Management Sequence Diagram32
+Figure 16 Gantt Chart43
+Figure 17 Logsheet 146
+Figure 18 Logsheet 247
+Figure 19 Logsheet 348
+Figure 20 Logsheet 449
+Table of Tables
+Table 1 Compartive Analysis Table15
+Table 2 Sub System 1 Test Cases31
+Table 3 Sub System 2 Test Cases33
+Table 4 Sub System 3 Test Cases34
+Table 5 Sub System 4 Test Cases35
+Table 6 Sub System 5 Test Cases36
+Table 7 Sub System 6 Test Cases37
+Table 8 Sub System 7 Test Cases38
+Table 9 Sub System 8 Test Cases39
+Introduction
+Inventory management is a critical function for organizations handling physical goods, ensuring accurate stock tracking, timely replenishment, and cost control. For SMEs, effective inventory management is particularly vital due to limited financial and operational resources. Inefficiencies such as stock shortages or overstocking can significantly affect profitability, customer satisfaction, and operational continuity.
+Despite these challenges, many SMEs continue to rely on manual methods, such as spreadsheets and paper-based records, which are prone to errors, delayed updates, and inconsistencies. As operations scale, these traditional approaches fail to provide the necessary accuracy and transparency, undermining managerial decision-making in procurement, sales, and financial planning.
+Recent advances in digital technologies, including database-driven systems, cloud computing, and web-based applications, offer opportunities to address these challenges. Centralized, real-time tracking and automated reporting enhance operational visibility and support informed decisions. However, SMEs often face barriers in adopting such technologies due to financial limitations, lack of technical expertise, and resistance to organizational change.
+In response, this project proposes the design and development of a database-driven Inventory Management System (IMS) that addresses operational, technological, and human factors to improve efficiency, reduce errors, and enable informed decision-making in SMEs.
+Aims and Objectives
+The primary aim of this project is to develop a modular, database-driven IMS for SMEs that enhances stock visibility, operational efficiency, and decision-making. The specific objectives are:
+Develop a modular IMS capable of managing inventory, orders, billing, and returns.
+Ensure secure access through role-based permissions and authentication.
+Facilitate accurate, real-time stock updates and transaction recording.
+Provide dashboards and reports for operational and strategic decision-making.
+Evaluate the system’s effectiveness in improving SME inventory performance.
+This report presents a comprehensive view of the system’s design, implementation, and evaluation, highlighting how a structured IMS can enhance operational efficiency and sustainability in SMEs.
+Artefact
+The Inventory Management System (IMS) is a comprehensive enterprise application designed to support the efficient management of products, inventory, orders, billing, and operational reporting within an organization. The system integrates multiple functional modules into a single platform, allowing businesses to monitor and control the complete lifecycle of inventory—from product creation and stock storage to sales processing, returns, and financial reconciliation.
+At the core of the system lies a secure authentication and authorization framework that ensures only authorized users can access system resources. Role-based access control allows different users—such as administrators, managers, and operational staff—to interact with the system according to their responsibilities. This structured access model enhances security while improving usability through role-specific dashboards and permissions.
+The product and inventory management component forms the operational backbone of the system. It enables organizations to categorize products, manage multiple product variants, and track stock levels across different warehouses. Inventory updates occur through transactional operations to ensure data accuracy and consistency. By maintaining detailed stock movement records, the system ensures that every change to inventory can be traced and verified.
+Closely integrated with inventory management is the order management subsystem, which supports the creation and monitoring of both sales and purchase orders. This subsystem automatically synchronizes with inventory records to update stock levels in real time whenever an order is confirmed. As a result, the system prevents overselling and maintains accurate inventory availability.
+The system further extends operational processes into financial workflows through the billing and payment management module. This module generates invoices directly from approved sales orders and records payments against those invoices. By supporting partial and full payment tracking, the system maintains accurate financial records and ensures that invoice statuses reflect the current payment state.
+To handle exceptional situations, the return management subsystem enables users to initiate product return requests. These returns undergo an approval process to ensure that inventory adjustments are only made after managerial authorization. This structured workflow ensures accountability and prevents unauthorized stock modifications.
+Administrative oversight is reinforced through the inventory adjustment and audit logging subsystem, which allows authorized personnel to correct stock discrepancies while maintaining a detailed record of all system activities. The use of asynchronous logging ensures that audit records are captured without affecting system performance, thereby preserving both accountability and operational efficiency.
+For decision-making and operational monitoring, the system integration and reporting module consolidates data from all subsystems and presents it through dashboards and structured reports. These reports provide insights into inventory levels, order activity, financial transactions, and stock movements, helping management make informed business decisions.
+Finally, the system undergoes comprehensive validation and user acceptance testing before deployment to ensure reliability, performance, and usability in real-world scenarios. Through iterative testing and stakeholder feedback, the system is refined to meet operational requirements and ensure production readiness.
+Overall, the Inventory Management System provides a fully integrated platform that combines security, operational management, financial tracking, and reporting. By automating critical processes and maintaining accurate records across all modules, the system improves efficiency, transparency, and decision-making within the organization.
+Functional Decomposition Diagram:
+Figure 1 Functional Decomposition Diagram (FDD)
+Sub-System 1: Authentication and Authorization
+The Authentication and Authorization subsystem establishes the foundational security framework of the system. It is responsible for validating user identity and enforcing access control mechanisms across all protected resources.
+The system implements secure user authentication using cookie-based authentication mechanisms. User credentials are validated against stored records, and upon successful login, an authentication cookie is issued to maintain session state. This approach ensures secure yet efficient session management suitable for web-based enterprise systems.
+Authorization is enforced using role-based access control (RBAC). Each user is assigned one or more predefined roles, such as Administrator, Manager, or Standard User. Access to controllers and individual actions is restricted based on these roles, ensuring that unauthorized users cannot access protected pages or business operations. The enforcement mechanism operates at both controller and action levels, thereby providing granular permission control.
+Following successful authentication, users are automatically redirected to role-specific dashboards. This design enhances usability while simultaneously preventing privilege escalation. The subsystem provides a login interface, role-based dashboard routing, and a structured permission enforcement mechanism that governs all subsequent subsystems.
+Sub-System 2: Product and Inventory Management
+The Product and Inventory Management subsystem provides the core operational foundation for managing goods within the organization. It enables structured categorization, multi-variant product management, and warehouse-level inventory tracking.
+Products are organized into categories to support structured data classification. Each product may contain multiple variants (for example, size or color variations), allowing flexible representation of real-world inventory scenarios. Inventory is maintained at the warehouse level, ensuring accurate tracking across distributed storage locations.
+All inventory updates are performed transactionally to guarantee ACID compliance. This ensures that stock changes—whether increases or decreases—are executed atomically and consistently. The system also prevents operations such as sales or transfers when inventory levels are insufficient, thereby enforcing business rules at the application layer.
+Inactive records are excluded from standard inventory queries by default, maintaining data clarity and preventing operational inconsistencies. The subsystem delivers a comprehensive product management interface, an inventory dashboard for stock visibility, and detailed stock movement records for traceability.
+Sub-System 3: Order Management
+The Order Management subsystem facilitates the creation and tracking of both sales and purchase orders. It integrates directly with the inventory module to ensure real-time stock updates.
+Users can create sales orders that deduct inventory and purchase orders that replenish stock. Each order maintains item-level details, including quantity, pricing, and associated product variants. Orders also maintain status tracking (e.g., Draft, Confirmed, Completed), allowing lifecycle management and operational transparency.
+A key design principle of this subsystem is automatic inventory synchronization. Upon order confirmation, inventory movements are generated programmatically, ensuring real-time updates without manual intervention. Performance considerations are incorporated to ensure acceptable response times during order processing, even under concurrent user activity.
+The subsystem provides dedicated interfaces for sales order creation, purchase order management, and order history review, forming a critical bridge between operational and financial workflows.
+Sub-System 4: Billing and Payment Management
+The Billing and Payment Management subsystem extends order processing into financial operations. It introduces structured invoice generation and payment tracking mechanisms.
+Invoices are generated directly from approved sales orders, ensuring data consistency between operational and financial modules. Each invoice supports multiple line items corresponding to order details. The system also allows manual invoice generation where business exceptions require it.
+Payment recording supports both partial and full payments. Invoice status transitions (Unpaid, Partially Paid, Paid) are automatically updated based on payment amounts. All financial transactions are executed atomically to maintain referential integrity between invoices and payment records.
+Once an invoice is fully settled, modification restrictions are enforced to preserve financial accuracy, unless handled through authorized adjustment procedures. This subsystem delivers invoice management interfaces, payment recording modules, and financial transaction reporting components.
+Sub-System 5: Return Management and Approval Workflow
+The Return Management subsystem introduces structured handling of returned goods alongside a controlled approval workflow.
+Users may initiate return requests referencing original sales orders. Returns are recorded at the item level, allowing partial returns where applicable. Each return request undergoes a single-level approval process, restricted to managerial or administrative roles.
+Inventory adjustments occur only upon approval of the return request. Rejected returns do not affect stock levels, ensuring strict adherence to business rules. The subsystem also maintains status tracking (Pending, Approved, Rejected) and records a detailed audit trail of approval actions to ensure accountability.
+This module strengthens operational governance by combining workflow control, inventory integration, and traceability.
+Sub-System 6: Inventory Adjustment and Audit Logging
+The Inventory Adjustment and Audit Logging subsystem provides administrative mechanisms for correcting stock discrepancies and maintaining system accountability.
+Authorized users may perform inventory adjustments categorized as increases, decreases, or corrections. Each adjustment automatically generates a corresponding stock movement record, ensuring that all inventory changes remain traceable.
+A key architectural feature of this subsystem is asynchronous audit logging. Audit records are generated in the background to prevent degradation of user response times. Audit logs are immutable once recorded and are accessible only to authorized users. This design supports compliance, traceability, and accountability within the enterprise system.
+Sub-System 7: System Integration and Reporting
+The System Integration and Reporting subsystem ensures cross-module data consistency and provides decision-support capabilities.
+Operational reports include inventory summaries, order statistics, and stock movement analyses. Financial reports cover invoices, payment records, and outstanding balances.
+Reports retrieve real-time data and support dynamic filtering by date range, warehouse, category, and status. Role-based authorization restricts report access to appropriate users, preserving data confidentiality.
+This subsystem integrates data from authentication, inventory, order, billing, and return modules, ensuring holistic visibility across the enterprise workflow.
+Sub-System 8: Final Validation and User Acceptance Support
+The Final Validation and User Acceptance subsystem represents the culmination of system integration and readiness for deployment.
+Comprehensive regression testing ensures that all subsystems operate cohesively without functional conflicts. Performance validation confirms that response times remain within acceptable thresholds under expected loads.
+User Acceptance Testing (UAT) sessions are conducted with business stakeholders to validate real-world workflows. Feedback is incorporated through iterative refinement, and all critical defects are resolved prior to production release.
+The subsystem also ensures production readiness through monitoring configuration, logging enablement, and final deployment packaging.
+Academic Questions
+1. What role does a database-driven system play in improving the accuracy of stock movement tracking across multiple warehouses?
+A database-driven system centralizes inventory data within a relational database, ensuring that all stock movements such as sales, purchases, transfers, and adjustments are recorded consistently. By maintaining structured tables and relationships between products, warehouses, and transactions, the system ensures data integrity and traceability. Transactional operations enforce consistency and prevent conflicting updates. This design significantly reduces discrepancies and ensures accurate stock tracking across multiple warehouse locations.
+2. How can automated stock update mechanisms reduce operational inefficiencies in sales, purchases, returns, and adjustments?
+Automated stock update mechanisms synchronize inventory changes with operational activities such as order confirmation, returns, and inventory adjustments. By automatically updating quantities in real time, the system eliminates manual data entry and reduces human error. Workflow automation ensures that stock levels remain accurate without additional administrative effort. As a result, operational processes become faster, more reliable, and less prone to inconsistencies.
+3. How does real-time inventory visibility influence managerial decision-making in SMEs?
+Real-time inventory visibility provides managers with immediate access to accurate stock levels, order activity, and transaction records through reporting dashboards. This transparency enables informed decisions regarding procurement, sales planning, and stock replenishment. Managers can quickly identify shortages, excess inventory, or operational inefficiencies. Consequently, real-time data supports strategic planning and improves overall operational responsiveness in SMEs.
+Literature Review
+The literature on inventory management in SMEs can be categorized into four themes: adoption and automation, technology and optimization, human and organizational factors, and inventory control and performance outcomes. This review synthesizes recent studies, highlighting gaps that inform the system design.
+Adoption and Automation in SMEs
+Digital adoption in SMEs remains uneven despite clear operational benefits. (Ghazi & Salih, 2023) report that AI-driven automated IMS implementations in an Iraqi medium-sized distributor improved monitoring, reduced storage costs, and enhanced customer satisfaction. However, the implementation was complex, resource-intensive, and required external IT consultants. Staff resistance and training were significant barriers.
+(Alam, et al., 2024) highlight that Bangladeshi SMEs face financial constraints and operational inefficiencies, leading to 10–15% stock losses, despite some digital tool usage. (Drakeley & Perera, 2022) note that UK SMEs are slow to adopt inventory optimization due to lack of expertise, limited investment, and insufficient managerial motivation. These studies collectively indicate that while automation offers tangible benefits, adoption depends on organizational readiness and technical support.
+For this project, the system emphasizes structured tracking, automated alerts, and scalability, prioritizing usability over complex AI-based forecasting, thereby addressing SME constraints effectively.
+Technology, Optimization, and Information Systems
+Technological advancements in cloud computing, integrated information systems, and decision-support tools are critical for effective inventory management. (Karvela, et al., 2021) argue that cloud platforms enable real-time data sharing across sales, purchasing, and warehousing functions, supporting accurate replenishment decisions. Cloud-based solutions offer lower capital expenditure, data backup, and disaster recovery benefits for SMEs.
+(Drakeley & Perera, 2022) differentiate between basic inventory control and optimization. SMEs often neglect analytical tools that could enhance performance, leading to suboptimal outcomes. (Panigrahi, 2024) confirm that digital systems and structured policies improve inventory turnover and profitability but emphasize the need for managerial capability and strategic alignment. (Puspitawati, et al., 2024) show that integration with management accounting systems enhances decision-making and operational efficiency.
+These studies inform the design of the present IMS, which implements web-based, integrated modules with dashboard analytics and practical decision-support tools such as reorder alerts, approximating optimization benefits in a feasible SME context.
+Human and Organizational Factors
+Human and organizational factors significantly influence IMS effectiveness. (Afolabi, et al., 2024) report that employee skills, fatigue, and job satisfaction directly impact inventory accuracy and lead times. (Mat, et al., 2023) demonstrate that digital inventory tracking enabled Malaysian SMEs to cope better with supply disruptions during COVID-19. (Mung, et al., 2023) emphasize staff competence, supplier collaboration, and formalized inventory policies as key determinants of effective inventory management.
+The present system incorporates role-based permissions, intuitive interfaces, and audit trails to ensure accountability and transparency. Training and documentation are integral to system deployment to maximize user engagement and operational success.
+Inventory Control and Performance Outcomes
+Structured inventory management positively influences SME performance. (Mat, et al., 2023) and (Syamsuddin, et al., 2024) report that effective inventory practices improve organizational value and financial performance. (Puspitawati, et al., 2024) show that integrated management accounting and information systems enhance competitive advantage.
+However, (Alam, et al., 2024) note that inventory management’s financial impact may vary across industries. Research gaps exist in quantifying how specific IMS features, such as real-time tracking and automated alerts, affect SME performance metrics. This project addresses this by evaluating improvements in stock accuracy, operational efficiency, and labour-time savings following IMS implementation.
+Peer Review of Similar Systems
+Recent case studies provide practical insights into implemented SME inventory systems. (Ghazi & Salih, 2023) demonstrate that AI-enhanced forecasting and automated replenishment reduce stockouts and excess inventory but require substantial expertise and phased rollout strategies. They recommend modular implementation and strong user training to build trust in automated logic. (Otobo & Alegbe, 2024) describe a cloud-hosted, web-based IMS featuring user roles, automated stock updates, and reporting dashboards—closely aligning with the proposed system architecture in this project. Their pilot deployment improved stock visibility and reduced stockouts, though evaluation was limited to a single context without rigorous quantitative analysis. (Mariani & Wacas, 2022) examine integrated Point-of-Sale (POS) and IMS implementations in retail SMEs. Integration significantly reduced discrepancies between recorded and physical stock and shortened reconciliation time. However, initial data migration challenges and ongoing training needs were reported. Together, these case studies reinforce several conclusions: integrated and web-based systems improve stock accuracy and operational efficiency; AI-driven features can enhance forecasting; and human factors remain central to adoption success. Implementation must be gradual, supported by training, and aligned with organizational capabilities.
+Synthesis and Research Gap
+Across themes, the literature demonstrates strong consensus that structured inventory management enhances SME efficiency, resilience, and competitiveness. Digital systems, particularly cloud-based and integrated platforms, offer real-time visibility and improved coordination. However, adoption barriers persist due to financial constraints, skill gaps, and organizational resistance. Advanced optimization techniques remain underutilized, and empirical evidence quantifying the impact of specific IMS features is limited. The present project contributes by designing a modular, web-based IMS tailored to SME contexts. It integrates authentication, inventory tracking, order processing, billing, returns, audit logging, and reporting within a unified database architecture. By emphasizing usability, scalability, and integrated reporting, the system addresses technological, organizational, and performance considerations identified in the literature. Furthermore, evaluation of operational improvements aims to provide empirical evidence linking structured IMS features with measurable efficiency gains. In doing so, the project bridges theoretical recommendations and practical SME implementation, contributing to the evolving discourse on digital transformation in inventory management.
+Comparative Analysis Table
+Author
+Study
+Key Findings
+Limitations
+Relevance
+(Alam, et al., 2024)
+Inventory management in SMEs (Bangladesh)
+SMEs face 10–15% stock losses due to finance, waste; limited digital adoption
+Small sample, self-reported
+Highlights SME IM challenges
+(Drakeley & Perera, 2022)
+Inventory optimization adoption
+SMEs slow to adopt optimization; high cost and expertise required
+UK-specific, theoretical
+Justifies cost-effective IMS design
+(Ghazi & Salih, 2023)
+AI-based IMS (Iraq)
+Improved tracking, reduced costs, requires training
+Single case study
+Emphasizes training and modular implementation
+(Karvela, et al., 2021)
+Cloud adoption in SCM
+Real-time data sharing, disaster recovery benefits
+Theoretical, not SME-specific
+Supports cloud-based IMS architecture
+(Afolabi, et al., 2024)
+Human factors in FMCG
+Employee skills and workload impact inventory accuracy
+E-commerce focus
+Supports inclusion of training and audit trails
+(Puspitawati, et al., 2024)
+SMA & MAIS
+Integrated systems improve efficiency
+Industry-specific
+Supports linking IMS with accounting
+(Otobo & Alegbe, 2024)
+Web-based IMS
+Automates stock updates, reduces errors
+Small sample
+Benchmark for features: RBAC, alerts, dashboards
+Table 1 Compartive Analysis Table
+Project Methodology
+Iterative Development Methodology
+Iterative development is a software development technique whereby the system is created and enhanced by repeated cycles (iterations). Instead of releasing the whole system at once, developers start with an initial minimal version of the system and enhance it with each subsequent iteration. Planning, design, implementation, and testing are all components of each cycle, and feedback from the customers is used to enhance the subsequent version.
+Why Iterative Development is appropriate for this project:
+Early Delivery of Core Functionality: The IMS may be delivered in stages, starting with the fundamental modules like database schema and tracking movement of stock, then expanding via reporting, analysis, and API connectivity.
+Less Risk of Failure: Continual testing and feedback in each iteration help identify and fix bugs early, decreasing the risk of substantial issues at the end of development.
+Flexibility to Adapt: When things do change (e.g., implementing new inventory processes or compliance guidelines), iterative cycles enable faster adaptation with less rework.
+Involvement of Customers: Feedback along the way keeps the system on track with organizational goals and user requirements.
+Visibility into Progress: Because each iteration has a workable version, customers can see real progress in the process, which generates trust and confidence.
+In short, Iterative development methodology is a viable method of developing an Inventory Management System because it reduces risk, ensures ongoing improvement, and has room for flexibility in modifying the system as business requirements evolve.
+Tools and Technologies
+Backend: .NET 9 (Framework: ASP.NET Core Web App (MVC))
+Frontend: HTML (Razor Pages), CSS, JS, jQuery, Bootstrap
+Icon Pack: Bootstrap Icons
+Package Manager: NuGet Package Manager 
+Database: SQL Server
+IDE: Visual Studio and Visual Studio Code
+Version Control: GitHub
+The selected tools and technologies were chosen to ensure reliability, scalability, and efficient development of the Inventory Management System. 
+.NET 9 with ASP.NET Core MVC was used as the backend framework because it provides strong performance, secure authentication mechanisms, and a structured MVC architecture suitable for enterprise web applications. 
+HTML with Razor Pages, CSS, JavaScript, jQuery, and Bootstrap were used for the frontend to create responsive and user-friendly interfaces while enabling dynamic interactions within the system. 
+Bootstrap Icons were incorporated to provide consistent and lightweight visual elements across the interface. 
+NuGet Package Manager was used to manage dependencies efficiently and simplify integration of external libraries. 
+SQL Server was selected as the database due to its strong support for relational data management, transactional integrity, and seamless integration with .NET applications. 
+Development was carried out using Visual Studio and Visual Studio Code, which offer powerful debugging, code management, and development tools. 
+Finally, GitHub was used for version control to manage code changes, track development progress, and support collaborative development practices.
+Artefact Design
+The artefact developed for this project is a modular, role-based Inventory and Order Management System designed using layered architectural principles. The system is structured into eight major subsystems, each representing an incremental enhancement of business functionality. The design emphasizes transactional integrity, role-based access control, modular extensibility, and cross-module data consistency. Collectively, these subsystems implement a comprehensive enterprise workflow covering authentication, inventory control, order processing, billing, returns, auditing, reporting, and final system validation.
+Software Requirements Specification (SRS)
+The Inventory Management System (IMS) is a web-based MVC application designed to manage products, inventory, sales, purchases, billing, and returns in a centralized and controlled manner.
+The system consists of the following major elements:
+Front-end role-based dashboards (MVC Views).
+Backend application services (business logic layer).
+Centralized relational database.
+Asynchronous audit logging subsystem.
+The system enforces role-based access control, transactional inventory updates, and approval-based workflows to ensure data integrity and accountability.
+Admin
+Manages users, roles, permissions, and system configurations.
+Oversees inventory, orders, returns, and approvals.
+Has full access to all dashboards.
+Inventory User
+Manages warehouses, stock levels, adjustments, and movements.
+Views inventory dashboards and reports.
+Cannot manage users or permissions.
+Sales User
+Creates sales orders and invoices.
+Records customer payments.
+Views customer-related reports.
+Purchase User
+Creates purchase orders.
+Manages suppliers.
+Tracks incoming inventory.
+Manager
+Approves return requests.
+Views high-level dashboards and reports.
+The following sections describe each subsystem in detail, outlining its purpose, architectural considerations, and operational behaviour.
+Use Case Diagram:
+Figure 2 Use Case Diagram
+The use case diagram depicts how external actors interact with the system’s functionality. Actors (for example, Admin, Warehouse Manager, Supplier) are shown as stick figures linked to use cases (ovals) representing actions like “Log In”, “Manage Inventory”, “Create Purchase Order”, and “Process Returns”. This high-level view captures functional requirements from the user perspective, illustrating which roles perform which functions.
+User Flowchart:
+Figure 3 User Flowchart
+The user flowchart outlines the primary sequence of operations in the system using standard flowchart symbols. For example, the flow may begin with User Login (input/output symbols), proceed to decision points (diamond symbols) such as verifying credentials, then branch to either Show Dashboard or Display Error. It would continue with processes like Select Module, View/Update Inventory, Submit Order, etc., before ending in Log Out. This flowchart visualizes the step-by-step logic of key workflows. In an inventory context, it might illustrate checking stock levels and reordering items with decisions that prevent stock out or overstock.
+Activity Diagrams:
+Login & Security Activity
+Figure 4 Login & Security Activity
+This activity diagram shows the workflow for user authentication. It begins at Initial State, then proceeds to Enter Credentials (username/password). The system validates input: if correct, it continues to Grant Access (final state leading to dashboard); if incorrect, it goes to Display Error and may loop back for another attempt. It may also lead to security actions (e.g. account lock after multiple failures).
+Dashboard Activity
+Figure 5 Dashboard Activity
+The dashboard activity diagram models the user’s actions after login. It starts with Show Dashboard, then flows through activities like Load Metrics, Display Notifications, and waits for user input to select a function (e.g. “Go to Inventory Module” or “Go to Orders”).
+Roles & Permission Activity
+Figure 6 Roles & Permission Activity
+This diagram illustrates how administrators manage roles and permissions. It may begin with Admin Selects Role Management, followed by options like Create Role or Assign Permissions. Each path involves steps such as Input Role Details, Select Permissions, and Save Role.
+Inventory Activity
+Figure 7 Inventory Activity
+The inventory activity diagram details the process of adding or updating stock items. Starting at Select Inventory Module, it flows to actions such as Add New Item or Update Existing Item. For adding, activities include Enter Item Details and Save to Database. For updating, it includes Search Item, Modify Attributes, and Confirm Update.
+Inventory Adjustment Activity
+Figure 8 Inventory Adjustment Activity
+This diagram focuses on adjusting stock levels (e.g., correcting counts due to shrinkage or damage). It begins with Select Adjustment, then Enter Adjustment Details (item, quantity change, reason). The system validates (e.g. “Is adjustment allowed?”) and then Update Inventory. It ends with Record Adjustment and Return to Inventory Dashboard.
+Purchase Order Activity
+Figure 9 Purchase Order Activity
+This diagram maps the steps for creating a purchase order. It starts at Initiate Purchase Order, then sequences through Select Supplier, Add Order Items, Specify Quantities, and Submit Order. Decision points include inventory check (e.g. “Does stock fall below threshold?”) that may auto-trigger order creation. Upon submission, the system might generate Order Confirmation and update pending orders. Finally, the flow ends at Notify Warehouse/Accounting.
+Return Management Activity
+Figure 10 Return Management Activity
+This diagram represents the workflow for processing returned goods. Beginning with Select Return, the user enters details (Order ID, Items to Return), and the system checks eligibility. Upon approval, activities include Process Refund/Exchange and Update Inventory. Decision points might handle partial returns or denied returns. The process concludes with Close Return Case.
+Class Diagram:
+Figure 11 Class Diagram
+The class diagram shows the static structure of the system. It lists key classes such as Product, InventoryItem, PurchaseOrder, UserAccount, and ReturnOrder, including their attributes (e.g. Product: ID, name, price) and methods. Associations between classes (e.g. a PurchaseOrder class linked to multiple InventoryItem classes) are drawn with lines, sometimes annotated with multiplicity (e.g. one order has many items). This UML diagram communicates how the software’s data model is organized. For instance, it illustrates that a UserAccount may have a Role, and that adjusting an InventoryItem affects product quantities. The class diagram helps developers understand the object-oriented design and database schema relationships.
+Component Diagram:
+Figure 12 Component Diagram
+A component diagram depicts the high-level architecture by illustrating how major software parts are connected. In our system, components might include Web UI Component, Business Logic Component, Data Access Component, and Database. The diagram shows provided and required interfaces between them. By bundling components together, it verifies that all required functionality (such as order processing or report generation) is covered by some component. This visual ensures that each component’s role is clear and that the overall system wiring supports the intended operations.
+Sequence Diagrams:
+Login & Authorization Sequence Diagram
+Figure 13 Login & Authorization Sequence Diagram
+The login & authorization sequence diagram details the interaction sequence when a user logs in. The lifelines (vertical dashed lines) might include User Interface, Auth Controller, User Service, and Database. Over time (horizontal axis), messages flow from the user to the UI (“submit credentials”), then to the controller (“validate user”), and then to the database (“query user record”). Responses propagate back (“authentication success”), ending with the UI granting access.
+Inventory Adjustment Sequence Diagram
+Figure 14 Inventory Adjustment Sequence Diagram
+This diagram shows the object interactions for an inventory adjustment operation. For example, the User sends an AdjustInventory() message to the InventoryController, which then calls the InventoryService to update quantities. The service may query the Database and send a confirmation message back. Each message (with activation bars) is drawn in temporal order. By focusing on one operation, the sequence diagram clarifies timing: e.g., after InventoryService updates the record, it returns a success message that propagates back to the user.
+Return Management Sequence Diagram
+Figure 15 Return Management Sequence Diagram
+The return management sequence diagram models the steps when processing a product return. A User requests a return via the ReturnController, which interacts with ReturnService to verify the order and InventoryService to restock items. 
+Testing
+An iterative testing strategy aligned with incremental development cycles is adopted. Each iteration concludes with validation activities before proceeding to the next subsystem.
+Testing is conducted at multiple levels:
+Unit Testing verifies individual components and business logic, including inventory calculations, order processing rules, and financial computations.
+Integration Testing ensures correct interaction between modules, such as order confirmation triggering inventory movement or invoice generation linking accurately with payment records.
+System (End-to-End) Testing validates complete workflows under realistic scenarios, including order-to-cash and purchase-to-stock cycles.
+User Acceptance Testing (UAT) involves stakeholders evaluating the system against operational requirements prior to deployment.
+Regression testing is performed at the end of each iteration to confirm that newly introduced features do not adversely affect previously validated functionality. Performance testing focuses on response times for inventory queries, order processing, audit logging, and reporting modules. Security testing validates authentication mechanisms, session management, and authorization enforcement.
+Sub-System-1: Authentication & Authorization
+Functional Requirements
+• FR1: The system shall support secure user authentication.• FR2: Users shall be able to log in using stored credentials.• FR3: The system shall restrict access based on assigned roles.• FR4: Unauthorized users shall be prevented from accessing protected pages.• FR5: The system shall redirect users to role-specific dashboards upon login.
+Software Requirements
+• SR1: The system shall use cookie-based authentication.• SR2: Authorization shall be enforced at controller and action levels.• SR3: Session management shall be handled using authentication cookies.
+Expected Deliverables
+• Login page• Role-based dashboard routing• Permission enforcement mechanism
+Sub System 1 Test Cases
+ID
+Details
+Expected Outcome
+Actual Outcome
+Result
+FR1
+User login
+Valid users can log in
+Login successful
+Pass
+FR2
+Credential validation
+Invalid credentials rejected
+Access denied
+Pass
+FR3
+Role restriction
+Users see allowed pages only
+Restrictions enforced
+Pass
+FR4
+Unauthorized access
+Redirect to login
+Redirect works
+Pass
+FR5
+Dashboard routing
+Role-based dashboard loads
+Correct dashboard loaded
+Pass
+Table 2 Sub System 1 Test Cases
+Sub-System-2: Product & Inventory Management
+Functional Requirements
+• FR1: The system shall allow administrators to create and manage product categories.• FR2: The system shall support products with multiple variants.• FR3: The system shall track inventory quantities at the warehouse level.• FR4: The system shall prevent operations when inventory levels are insufficient.• FR5: The system shall maintain stock movement records for traceability.
+Software Requirements
+• SR1: Inventory operations shall follow ACID transactional principles.• SR2: Inactive records shall be excluded from default inventory queries.• SR3: Inventory updates shall be synchronized with related system operations.
+Expected Deliverables
+• Product management interface• Inventory dashboard• Warehouse-level inventory tracking• Stock movement history
+Sub System 2 Test Cases
+ID
+Details
+Expected Outcome
+Actual Outcome
+Result
+FR1
+Create category
+Category saved successfully
+Category created
+Pass
+FR2
+Add product variant
+Product variant added
+Variant visible
+Pass
+FR3
+Inventory tracking
+Warehouse stock updated
+Inventory updated
+Pass
+FR4
+Insufficient stock
+System prevents sale
+Operation blocked
+Pass
+FR5
+Stock movement record
+Movement logged
+Log recorded
+Pass
+Table 3 Sub System 2 Test Cases
+Sub-System-3: Order Management
+Functional Requirements
+• FR1: The system shall allow users to create sales orders.• FR2: The system shall allow users to create purchase orders.• FR3: Each order shall store item-level details including quantity and price.• FR4: Orders shall support lifecycle statuses (Draft, Confirmed, Completed).• FR5: Inventory shall automatically update when orders are confirmed.
+Software Requirements
+• SR1: Inventory synchronization shall occur programmatically upon order confirmation.• SR2: The system shall support concurrent user access during order processing.• SR3: Order transactions shall maintain data consistency across related tables.
+Expected Deliverables
+• Sales order creation interface• Purchase order management module• Order history tracking
+Sub System 3 Test Cases
+ID
+Details
+Expected Outcome
+Actual Outcome
+Result
+FR1
+Create sales order
+Sales order recorded
+Order created
+Pass
+FR2
+Create purchase order
+Purchase order recorded
+Order created
+Pass
+FR3
+Order item details
+Items stored correctly
+Item details saved
+Pass
+FR4
+Order lifecycle
+Status updated correctly
+Status changes correctly
+Pass
+FR5
+Inventory sync
+Inventory updated automatically
+Stock updated
+Pass
+Table 4 Sub System 3 Test Cases
+Sub-System-4: Billing & Payment Management
+Functional Requirements
+• FR1: The system shall generate invoices from approved sales orders.• FR2: The system shall allow manual invoice creation when required.• FR3: The system shall support recording partial or full payments.• FR4: Invoice status shall update automatically based on payment status.• FR5: Fully paid invoices shall be protected from unauthorized modification.
+Software Requirements
+• SR1: Invoice and payment transactions shall execute atomically.• SR2: Invoice records shall maintain referential integrity with order data.• SR3: Payment records shall be linked to invoices for financial tracking.
+Expected Deliverables
+• Invoice generation interface• Payment recording module• Invoice status tracking system
+Sub System 4 Test Cases
+ID
+Details
+Expected Outcome
+Actual Outcome
+Result
+FR1
+Generate invoice
+Invoice created
+Invoice generated
+Pass
+FR2
+Manual invoice
+Invoice created manually
+Invoice recorded
+Pass
+FR3
+Record payment
+Payment stored
+Payment recorded
+Pass
+FR4
+Invoice status update
+Status updated automatically
+Status changed
+Pass
+FR5
+Modify paid invoice
+Modification restricted
+Restriction applied
+Pass
+Table 5 Sub System 4 Test Cases
+Sub-System-5: Return Management & Approval Workflow
+Functional Requirements
+• FR1: The system shall allow users to submit return requests.• FR2: Returns shall reference the original sales order.• FR3: Return requests shall undergo managerial approval.• FR4: Inventory adjustments shall occur only after approval.• FR5: Return status tracking shall include Pending, Approved, and Rejected states.
+Software Requirements
+• SR1: Return approval actions shall be restricted to authorized roles.• SR2: Approved returns shall generate inventory adjustment records.• SR3: Return transactions shall maintain audit logs.
+Expected Deliverables
+• Return request submission interface• Approval workflow module• Return tracking system
+Sub System 5 Test Cases
+ID
+Details
+Expected Outcome
+Actual Outcome
+Result
+FR1
+Submit return
+Return request recorded
+Request saved
+Pass
+FR2
+Reference sales order
+Correct order linked
+Reference valid
+Pass
+FR3
+Manager approval
+Only managers approve
+Approval successful
+Pass
+FR4
+Inventory update
+Stock adjusted after approval
+Stock updated
+Pass
+FR5
+Status tracking
+Status updates correctly
+Status visible
+Pass
+Table 6 Sub System 5 Test Cases
+Sub-System-6: Inventory Adjustment & Audit Logging
+Functional Requirements
+• FR1: The system shall allow authorized users to adjust inventory levels.• FR2: Adjustments shall support increase, decrease, and correction operations.• FR3: Every adjustment shall generate a stock movement record.• FR4: The system shall record audit logs for inventory changes.• FR5: Audit logs shall remain immutable after creation.
+Software Requirements
+• SR1: Audit logging shall operate asynchronously.• SR2: Stock adjustment transactions shall maintain data consistency.• SR3: Audit log access shall be restricted to authorized users.
+Expected Deliverables
+• Inventory adjustment interface• Stock movement tracking module• Audit logging system
+Sub System 6 Test Cases
+ID
+Details
+Expected Outcome
+Actual Outcome
+Result
+FR1
+Adjust inventory
+Inventory updated
+Adjustment applied
+Pass
+FR2
+Adjustment type
+Correct type applied
+Type recorded
+Pass
+FR3
+Stock movement record
+Movement logged
+Log created
+Pass
+FR4
+Audit logging
+Audit entry recorded
+Log stored
+Pass
+FR5
+Log immutability
+Logs cannot be edited
+Editing blocked
+Pass
+Table 7 Sub System 6 Test Cases
+Sub-System-7: System Integration & Reporting
+Functional Requirements
+• FR1: The system shall generate inventory reports.• FR2: The system shall generate order and transaction reports.• FR3: The system shall generate financial reports including invoices and payments.• FR4: Reports shall support filtering by date, warehouse, and category.• FR5: Role-based access shall restrict report visibility.
+Software Requirements
+• SR1: Reports shall retrieve real-time system data.• SR2: Reporting modules shall integrate data from multiple subsystems.• SR3: Dashboard metrics shall aggregate system data for management insights.
+Expected Deliverables
+• Operational reporting dashboard• Financial reporting module• Data filtering and export options
+Sub System 7 Test Cases
+ID
+Details
+Expected Outcome
+Actual Outcome
+Result
+FR1
+Inventory report
+Inventory data displayed
+Report generated
+Pass
+FR2
+Order report
+Order data displayed
+Report generated
+Pass
+FR3
+Financial report
+Invoice/payment data shown
+Report generated
+Pass
+FR4
+Filtering reports
+Reports filtered correctly
+Filters applied
+Pass
+FR5
+Role access
+Only authorized users access reports
+Restrictions enforced
+Pass
+Table 8 Sub System 7 Test Cases
+Sub-System-8: Final Validation & User Acceptance
+Functional Requirements
+• FR1: The system shall undergo regression testing across all modules.• FR2: The system shall validate performance under expected workloads.• FR3: The system shall support User Acceptance Testing with stakeholders.• FR4: Identified defects shall be resolved prior to deployment.• FR5: The system shall be prepared for production deployment.
+Software Requirements
+• SR1: Monitoring and logging shall be enabled for production readiness.• SR2: Deployment packaging shall support reliable system installation.• SR3: System performance metrics shall meet defined thresholds.
+Expected Deliverables
+• System testing reports• User acceptance validation• Deployment-ready system package
+Sub System 8 Test Cases
+ID
+Details
+Expected Outcome
+Actual Outcome
+Result
+FR1
+Regression testing
+All modules tested
+Tests completed
+Pass
+FR2
+Performance testing
+Acceptable response time
+Performance acceptable
+Pass
+FR3
+UAT session
+Stakeholders validate system
+UAT successful
+Pass
+FR4
+Bug fixing
+Critical bugs resolved
+Bugs fixed
+Pass
+FR5
+Deployment readiness
+System ready for production
+Deployment successful
+Pass
+Table 9 Sub System 8 Test Cases
+Gantt Chart
+Figure 16 Gantt Chart
+Conclusion
+This project addressed inventory management challenges faced by small and medium-sized enterprises (SMEs), particularly inefficiencies caused by manual record-keeping, stock discrepancies, and limited operational visibility. Drawing from literature and case studies, a modular, database-driven Inventory Management System (IMS) was designed and implemented to provide real-time stock tracking, automated transaction updates, role-based access, and integrated reporting.
+Critical Evaluation of Project Management
+Evaluation indicates that the IMS reduces human errors, enhances stock visibility, and supports efficient business processes. By aligning technology with organizational needs, the system provides SMEs with a practical, scalable tool for improving inventory control and operational performance. Future enhancements could include predictive analytics and multi-SME deployment to further strengthen its impact.
+Evidence of Project Management
+Figure 17 Logsheet 1
+Figure 18 Logsheet 2
+Figure 19 Logsheet 3
+Figure 20 Logsheet 4
+References
+Afolabi, O., Akinola, O. & Wenjun, Z., 2024. Integrating human factors into the distribution model of goods and fast-moving consumer goods for effective inventory control. International Journal of Engineering Business Management, 16(9).
+Alam, M. K., Thakur, O. A. & Islam, F. T., 2024. Inventory management systems of small and medium enterprises in Bangladesh. Rajagiri Management Journal, 18(1), pp. 8-19.
+Drakeley, P. & Perera, T., 2022. Inventory optimisation adoption amongst SMEs. Advances in Manufacturing Technology XXXV, Volume 25, pp. 200-206.
+Ghazi, M. & Salih, H. S., 2023. Implementing an automated inventory management system for small and medium-sized enterprises. Iraqi Journal for Computer Science and Mathematics, 4(2), pp. 238-244.
+Karvela, P., Kopanaki, E. & Georgopoulos, N., 2021. Challenges and opportunities of cloud adoption in supply chain management: a SWOT analysis model. Journal of System and Management Sciences, 11(3), pp. 215-234.
+Mariani, M. J. P. & Wacas, R. U., 2022. Efficacy, reliability, and accuracy of inventory system and point-of-sale service for small-medium enterprises in Tabuk City. International Journal of English, Literature and Social Science, 7(6).
+Mat, T. Z. T., Hashim, M., Saad, S. & Ismail, M. B., 2023. Inventory management practices among small and micro businesses during COVID-19 pandemic. Accounting and Finance Research, 12(4).
+Mung, L. K., Khun, J. L. T. & Kiumarsi, S., 2023. Effective inventory management among Malaysian SMEs in the manufacturing sector towards organisational performance. International Journal of Internet and Enterprise Management, 9(4).
+Otobo, D. W. & Alegbe, T., 2024. Design of a web-based inventory management system for small and medium sized production companies. International Journal of Innovative Information Systems & Technology Research, 12(3).
+Panigrahi, S. &. N. (., 2024. Impact of inventory management on SME performance: a systematic review. International Journal of Productivity and Performance Management, 73(9), pp. 2901-2925.
+Puspitawati, L., Lhutfi, I. & Qudratov, I., 2024. Enhancing inventory efficiency: The role of strategic management accounting and integrated management accounting information systems. Cogent Business & Management, 11(1).
+Syamsuddin, Z., Ramlawati, R. & Serang, S., 2024. Inventory management and performance of SMEs in the manufacturing sector in Makassar City. Jurnal Ekonomi, 13(4).
