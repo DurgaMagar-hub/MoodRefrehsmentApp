@@ -3,7 +3,7 @@ import axios from "axios";
 
 export const MoodContext = createContext();
 
-const API_URL = "http://localhost:3001/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
 export const MoodProvider = ({ children }) => {
     const [user, setUser] = useState(() => {
@@ -24,26 +24,44 @@ export const MoodProvider = ({ children }) => {
 
     const [isDarkTheme, setIsDarkTheme] = useState(false);
 
-    // Initial Data Fetch from SQL Database
+    // Initial Data Fetch from SQL Database (Users and Quotes only)
     useEffect(() => {
-        const loadSQLData = async () => {
+        const loadGlobalData = async () => {
             try {
-                const [accRes, moodRes, journalRes, quoteRes] = await Promise.all([
+                const [accRes, quoteRes] = await Promise.all([
                     axios.get(`${API_URL}/users`),
-                    axios.get(`${API_URL}/moods`),
-                    axios.get(`${API_URL}/journals`),
                     axios.get(`${API_URL}/quotes`)
                 ]);
                 setAccounts(accRes.data);
-                setMoodHistory(moodRes.data);
-                setJournalEntries(journalRes.data);
                 setQuotes(quoteRes.data);
             } catch (err) {
                 console.error("Failed to load SQL data:", err);
             }
         };
-        loadSQLData();
+        loadGlobalData();
     }, []);
+
+    // Load User-Specific Data when user logs in
+    useEffect(() => {
+        const loadUserSpecificData = async () => {
+            if (!user?.id) {
+                setMoodHistory([]);
+                setJournalEntries([]);
+                return;
+            }
+            try {
+                const [moodRes, journalRes] = await Promise.all([
+                    axios.get(`${API_URL}/moods?userId=${user.id}`),
+                    axios.get(`${API_URL}/journals?userId=${user.id}`)
+                ]);
+                setMoodHistory(moodRes.data);
+                setJournalEntries(journalRes.data);
+            } catch (err) {
+                console.error("Failed to load user-specific data:", err);
+            }
+        };
+        loadUserSpecificData();
+    }, [user?.id]);
 
     // Theme Handler
     useEffect(() => {
@@ -179,11 +197,36 @@ export const MoodProvider = ({ children }) => {
         }
     };
 
+    const updateUserIdentity = async (email, identity) => {
+        try {
+            const res = await axios.put(`${API_URL}/users/${email}`, identity);
+            const updatedUser = res.data;
+            
+            // Update local user state
+            setUser(updatedUser);
+            if (localStorage.getItem("user")) {
+                localStorage.setItem("user", JSON.stringify(updatedUser));
+            } else {
+                sessionStorage.setItem("user", JSON.stringify(updatedUser));
+            }
+
+            // Sync with accounts list
+            setAccounts(prev => prev.map(acc => 
+                acc.email === email ? updatedUser : acc
+            ));
+            
+            return updatedUser;
+        } catch (err) {
+            console.error("Error updating user identity", err);
+            throw err;
+        }
+    };
+
     // Aura engine
     const [aura, setAura] = useState({
         name: "Neutral",
-        color: "#6c5ce7",
-        gradient: "linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%)",
+        color: "var(--primary)",
+        gradient: "transparent", // Use the theme's background by default
         mode: "normal"
     });
 
@@ -193,24 +236,11 @@ export const MoodProvider = ({ children }) => {
             const energy = last.energy !== undefined && last.energy !== null ? last.energy : 50;
             const mood = last.label || last.mood;
 
-            let theme = { name: mood, mode: "normal" };
-
-            if (energy > 70) {
-                theme.color = "#fd79a8";
-                theme.gradient = "linear-gradient(135deg, #fd79a8 0%, #fab1a0 100%)";
-                theme.mode = "high-energy";
-            } else if (energy < 30) {
-                theme.color = "#74b9ff";
-                theme.gradient = "linear-gradient(135deg, #74b9ff 0%, #a29bfe 100%)";
-                theme.mode = "low-energy";
-            } else if (mood === "Stressed" || mood === "Anxious") {
-                theme.color = "#ff7675";
-                theme.gradient = "linear-gradient(135deg, #ff7675 0%, #fdcb6e 100%)";
-                theme.mode = "soothe";
-            } else {
-                theme.color = "#55efc4";
-                theme.gradient = "linear-gradient(135deg, #55efc4 0%, #81ecec 100%)";
-            }
+            const theme = { 
+                name: mood, 
+                color: energy > 70 ? "#fd79a8" : (energy < 30 ? "#74b9ff" : "#55efc4"),
+                mode: energy > 70 ? "high-energy" : (energy < 30 ? "low-energy" : "normal")
+            };
             setAura(theme);
         }
     }, [moodHistory]);
@@ -219,6 +249,7 @@ export const MoodProvider = ({ children }) => {
         <MoodContext.Provider value={{
             user, setUser, login, logout,
             accounts, setAccounts, deleteAccount, toggleAccountRole,
+            updateUserIdentity,
             settings, setSettings,
             aura, isDarkTheme,
             clearAllData,

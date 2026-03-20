@@ -6,7 +6,7 @@ export default function Card({ children, className = "", onClick, style = {} }) 
         border: "1px solid var(--glass-border)",
         borderRadius: "24px",
         padding: "24px",
-        boxShadow: "var(--shadow-md)",
+        boxShadow: `var(--shadow-md), var(--glass-inset)`,
         transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
         cursor: onClick ? "pointer" : "default",
         position: "relative",
@@ -23,8 +23,8 @@ export default function Card({ children, className = "", onClick, style = {} }) 
             onMouseEnter={(e) => {
                 if (onClick) {
                     e.currentTarget.style.transform = "translateY(-10px) scale(1.01)";
-                    e.currentTarget.style.boxShadow = "var(--shadow-lg)";
-                    e.currentTarget.style.borderColor = "rgba(255,255,255,0.8)";
+                    e.currentTarget.style.boxShadow = "var(--shadow-lg), var(--glass-inset)";
+                    e.currentTarget.style.borderColor = "var(--primary)";
                 }
             }}
             onMouseLeave={(e) => {
@@ -41,8 +41,8 @@ export default function Card({ children, className = "", onClick, style = {} }) 
                 top: 0,
                 left: 0,
                 right: 0,
-                height: "50%",
-                background: "linear-gradient(to bottom, rgba(255,255,255,0.4), transparent)",
+                bottom: 0,
+                background: "var(--glass-reflect)",
                 pointerEvents: "none"
             }} />
             <div style={{ position: "relative", zIndex: 1 }}>

@@ -19,14 +19,14 @@ const StyledButton = styled.button`
   background: ${props =>
     props.$variant === 'secondary' ? 'var(--card-bg)' :
       props.$variant === 'ghost' ? 'transparent' :
-        props.$variant === 'danger' ? '#ff7675' :
-          'linear-gradient(135deg, var(--primary) 0%, #ff6b6b 100%)'
+        props.$variant === 'danger' ? 'var(--danger)' :
+          'linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%)'
   };
   
   color: ${props =>
     props.$variant === 'secondary' ? 'var(--text-main)' :
       props.$variant === 'ghost' ? 'var(--text-main)' :
-        'white'
+        '#fff'
   };
 
   padding: ${props => props.$size === 'small' ? '12px 24px' : '16px 32px'};
@@ -35,12 +35,12 @@ const StyledButton = styled.button`
   width: ${props => props.$fullWidth ? '100%' : 'auto'};
   
   /* Spatial Shadow & Border */
-  box-shadow: ${props => props.$variant === 'primary' ? '0 10px 25px -5px rgba(255, 126, 95, 0.3)' : 'var(--shadow-sm)'};
+  box-shadow: ${props => props.$variant === 'primary' ? '0 10px 25px -5px var(--primary-glow)' : 'var(--shadow-sm)'};
   border: ${props => props.$variant === 'secondary' ? '1px solid var(--glass-border)' : 'none'};
 
   &:hover {
     transform: translateY(-4px) scale(1.02);
-    box-shadow: ${props => props.$variant === 'primary' ? '0 20px 35px -8px rgba(255, 126, 95, 0.5)' : 'var(--shadow-lg)'};
+    box-shadow: ${props => props.$variant === 'primary' ? '0 20px 35px -8px var(--primary-glow)' : 'var(--shadow-lg)'};
     filter: brightness(1.05);
   }
 
@@ -57,7 +57,7 @@ const StyledButton = styled.button`
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 100%);
+    background: var(--glass-reflect);
     opacity: 0;
     transition: opacity 0.3s;
   }

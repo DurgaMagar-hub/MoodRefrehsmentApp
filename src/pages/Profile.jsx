@@ -5,14 +5,44 @@ import Layout from "../components/Layout";
 import Card from "../components/Card";
 import Button from "../components/Button";
 import MoodGraph from "../components/MoodGraph";
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
 export default function Profile() {
-  const { user, setUser, logout, moodHistory, journalEntries, settings, setSettings, clearAllData, aura } = useContext(MoodContext);
+  const { user, updateUserIdentity, logout, moodHistory, journalEntries, settings, setSettings, clearAllData, aura } = useContext(MoodContext);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState(user?.name || "");
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetStep, setResetStep] = useState('otp');
+  const [otp, setOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleRegenerate = () => {
+  // Sync editedName when user changes
+  useState(() => {
+    if (user?.name) setEditedName(user.name);
+  }, [user?.name]);
+
+  const handleRegenerate = async () => {
     const newIdentity = generateIdentity();
-    if (setUser) setUser({ ...user, ...newIdentity });
+    setEditedName(newIdentity.name);
+    try {
+      await updateUserIdentity(user.email, newIdentity);
+    } catch (err) {
+      console.error("Failed to save new identity");
+    }
+  };
+
+  const handleUpdateName = async () => {
+    try {
+      await updateUserIdentity(user.email, { ...user, name: editedName });
+      setIsEditingName(false);
+    } catch (err) {
+      console.error("Failed to update name");
+    }
   };
 
   const toggleTheme = () => {
@@ -26,10 +56,42 @@ export default function Profile() {
     setSettings({ ...settings, notifications: !(settings?.notifications ?? true) });
   };
 
+  const handleTriggerReset = async () => {
+    setError("");
+    setIsLoading(true);
+    try {
+      await axios.post(`${API_URL}/auth/forgot-password`, { email: user.email });
+      setShowResetModal(true);
+      setResetStep('otp');
+    } catch (err) {
+      alert(err.response?.data?.error || "Error sending reset code");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFinishReset = async () => {
+    setError("");
+    if (otp.length < 4 || newPassword.length < 6) {
+      setError("Please complete all fields 🔐");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      await axios.post(`${API_URL}/auth/reset-password`, { email: user.email, otp, newPassword });
+      setShowResetModal(false);
+      setOtp("");
+      setNewPassword("");
+      alert("Password updated successfully! ✨");
+    } catch (err) {
+      setError(err.response?.data?.error || "Error resetting password");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <Layout
-      title="Profile"
-    >
+    <Layout title="Profile">
       <div style={{ paddingBottom: "20px" }}>
         {/* Profile Identity Card */}
         <Card style={{
@@ -50,56 +112,48 @@ export default function Profile() {
             }}>
               <path fill={aura?.color || "var(--primary)"} d="M44.7,-76.4C58.3,-69.2,70.1,-58.5,78.2,-45.6C86.3,-32.7,90.8,-17.7,89.5,-3C88.2,11.7,81.1,26,71.5,38.1C61.9,50.1,49.8,59.9,36.4,66.8C23,73.7,8.2,77.7,-6.6,76.5C-21.4,75.3,-36.2,68.9,-49.4,59.5C-62.7,50.1,-74.5,37.6,-80.1,23C-85.7,8.4,-85.1,-8.3,-79.9,-23.4C-74.8,-38.5,-65.1,-52.1,-52.1,-59.5C-39.1,-66.9,-22.8,-68.1,-7.2,-74.3C8.4,-80.5,16.8,-91.7,31.2,-91.5C45.6,-91.3,55.1,-79.6,44.7,-76.4Z" transform="translate(100 100)" />
             </svg>
-            <div style={{
-              fontSize: "64px",
-              position: "relative",
-              zIndex: 2,
-              animation: "auraBreatheProfile 4s ease-in-out infinite"
-            }}>
+            <div style={{ fontSize: "64px", position: "relative", zIndex: 2, animation: "auraBreatheProfile 4s ease-in-out infinite" }}>
               {user?.avatar || "👤"}
             </div>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "8px" }}>
-            <h2 style={{ margin: 0, fontSize: "28px", fontWeight: "900" }}>{user?.name || "Seeker"}</h2>
-            <button
-              onClick={handleRegenerate}
-              style={{ background: "none", border: "none", fontSize: "18px", cursor: "pointer", opacity: 0.6 }}
-              title="Change Identity"
-            >
-              🔄
-            </button>
+            {isEditingName ? (
+              <div style={{ display: "flex", gap: "8px" }}>
+                <input 
+                  value={editedName}
+                  onChange={(e) => setEditedName(e.target.value)}
+                  onBlur={handleUpdateName}
+                  autoFocus
+                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid var(--primary)", borderRadius: "8px", color: "white", fontSize: "20px", fontWeight: "700", padding: "4px 12px", textAlign: "center", width: "180px" }}
+                />
+              </div>
+            ) : (
+              <h2 onClick={() => setIsEditingName(true)} style={{ margin: 0, fontSize: "28px", fontWeight: "900", cursor: "pointer" }}>
+                {user?.name || "Seeker"}
+              </h2>
+            )}
+            <button onClick={handleRegenerate} style={{ background: "none", border: "none", fontSize: "18px", cursor: "pointer", opacity: 0.6 }} title="Change Identity">🔄</button>
           </div>
 
-          <div style={{
-            display: "inline-block",
-            fontSize: "12px",
-            fontWeight: "800",
-            color: "var(--primary)",
-            textTransform: "uppercase",
-            letterSpacing: "1px",
-            background: "rgba(0,0,0,0.05)",
-            padding: "4px 12px",
-            borderRadius: "20px"
-          }}>
+          <div style={{ display: "inline-block", fontSize: "12px", fontWeight: "800", color: "var(--primary)", textTransform: "uppercase", letterSpacing: "1px", background: "rgba(0,0,0,0.05)", padding: "4px 12px", borderRadius: "20px" }}>
             Level {Math.floor((moodHistory?.length || 0) / 5) + 1} • {aura?.name || "Neutral"} Bloom
           </div>
         </Card>
 
         {/* Analytics Section */}
-        <div style={{ marginBottom: "24px" }}>
+        <div style={{ marginBottom: "32px" }}>
           <MoodGraph />
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "32px" }}>
-          <Card style={{ textAlign: "center", padding: "16px" }}>
-            <div style={{ fontSize: "24px", fontWeight: "900", color: "var(--primary)" }}>{moodHistory?.length || 0}</div>
-            <div style={{ fontSize: "11px", fontWeight: "700", opacity: 0.6, textTransform: "uppercase" }}>Check-ins</div>
-          </Card>
-          <Card style={{ textAlign: "center", padding: "16px" }}>
-            <div style={{ fontSize: "24px", fontWeight: "900", color: "var(--accent)" }}>{journalEntries?.length || 0}</div>
-            <div style={{ fontSize: "11px", fontWeight: "700", opacity: 0.6, textTransform: "uppercase" }}>Journals</div>
-          </Card>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "16px" }}>
+            <Card style={{ textAlign: "center", padding: "16px" }}>
+              <div style={{ fontSize: "24px", fontWeight: "900", color: "var(--primary)" }}>{moodHistory?.length || 0}</div>
+              <div style={{ fontSize: "11px", fontWeight: "700", opacity: 0.6, textTransform: "uppercase" }}>Check-ins</div>
+            </Card>
+            <Card style={{ textAlign: "center", padding: "16px" }}>
+              <div style={{ fontSize: "24px", fontWeight: "900", color: "var(--accent)" }}>{journalEntries?.length || 0}</div>
+              <div style={{ fontSize: "11px", fontWeight: "700", opacity: 0.6, textTransform: "uppercase" }}>Journals</div>
+            </Card>
+          </div>
         </div>
 
         {/* Settings Section */}
@@ -126,9 +180,17 @@ export default function Profile() {
             />
             <div style={{ height: "1px", background: "var(--glass-border)", margin: "0 16px" }} />
             <SettingItem
+              icon="🔑"
+              title="Password"
+              desc="Update security code"
+              onClick={handleTriggerReset}
+              label="RESET"
+            />
+            <div style={{ height: "1px", background: "var(--glass-border)", margin: "0 16px" }} />
+            <SettingItem
               icon="🛡️"
-              title="Security"
-              desc="Delete all local data"
+              title="Identity"
+              desc="Clear all local data"
               onClick={() => setShowClearConfirm(true)}
               label="WIPE"
               danger
@@ -139,23 +201,12 @@ export default function Profile() {
         <div style={{ marginTop: "32px", textAlign: "center" }}>
           <button
             onClick={() => { logout?.(); window.location.href = "/"; }}
-            style={{
-              width: "100%",
-              padding: "16px",
-              borderRadius: "16px",
-              background: "rgba(255,118,117,0.1)",
-              border: "1px solid rgba(255,118,117,0.2)",
-              color: "#ff7675",
-              fontWeight: "800",
-              cursor: "pointer",
-              fontSize: "16px"
-            }}
+            style={{ width: "100%", padding: "16px", borderRadius: "16px", background: "rgba(255,118,117,0.1)", border: "1px solid rgba(255,118,117,0.2)", color: "#ff7675", fontWeight: "800", cursor: "pointer", fontSize: "16px" }}
           >
             Sign Out
           </button>
-
           <div style={{ marginTop: "24px", opacity: 0.4, fontSize: "10px", fontWeight: "700", letterSpacing: "1px" }}>
-            MOOD REFRESHMENT V1.0 • 2026
+            MOOD REFRESHMENT V1.1 • 2026
           </div>
         </div>
       </div>
@@ -177,6 +228,43 @@ export default function Profile() {
             <div style={{ display: "flex", gap: "12px" }}>
               <Button variant="danger" fullWidth onClick={() => { clearAllData?.(); setShowClearConfirm(false); }}>Erase All</Button>
               <Button variant="ghost" fullWidth onClick={() => setShowClearConfirm(false)}>Cancel</Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Password Reset Modal */}
+      {showResetModal && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          background: "rgba(0,0,0,0.8)", backdropFilter: "blur(10px)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "24px", zIndex: 10000
+        }}>
+          <Card style={{ maxWidth: "400px", width: "100%", textAlign: "center", padding: "32px", border: "1px solid var(--glass-border)" }}>
+            <div style={{ fontSize: "40px", marginBottom: "16px" }}>📬</div>
+            <h3 style={{ fontSize: "20px", marginBottom: "8px", color: "var(--text-main)" }}>Enter Security Code</h3>
+            <p style={{ opacity: 0.7, fontSize: "14px", marginBottom: "24px", color: "var(--text-sub)" }}>We sent a code to {user.email}</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "24px" }}>
+              <input 
+                placeholder="4-digit code" 
+                value={otp} 
+                onChange={(e) => setOtp(e.target.value)} 
+                maxLength={4}
+                style={{ width: "100%", padding: "16px", borderRadius: "12px", background: "rgba(255,255,255,0.05)", border: "1px solid var(--glass-border)", color: "white", textAlign: "center", letterSpacing: "8px", fontSize: "20px" }} 
+              />
+              <input 
+                type="password" 
+                placeholder="New Password" 
+                value={newPassword} 
+                onChange={(e) => setNewPassword(e.target.value)} 
+                style={{ width: "100%", padding: "16px", borderRadius: "12px", background: "rgba(255,255,255,0.05)", border: "1px solid var(--glass-border)", color: "white" }} 
+              />
+            </div>
+            {error && <div style={{ marginBottom: "16px", color: "#ff7675", fontSize: "13px", fontWeight: "600" }}>{error}</div>}
+            <div style={{ display: "flex", gap: "12px" }}>
+              <Button fullWidth onClick={handleFinishReset} isLoading={isLoading}>Update</Button>
+              <Button variant="ghost" fullWidth onClick={() => { setShowResetModal(false); setError(""); }}>Cancel</Button>
             </div>
           </Card>
         </div>
@@ -225,7 +313,7 @@ function SettingItem({ icon, title, desc, active, onClick, label, danger }) {
         {icon}
       </div>
       <div style={{ flex: 1 }}>
-        <div style={{ fontWeight: "700", fontSize: "15px", color: danger ? "var(--danger)" : "var(--text-main)" }}>{title}</div>
+        <div style={{ fontWeight: "700", fontSize: "15px", color: danger ? "#ff7675" : "inherit" }}>{title}</div>
         <div style={{ fontSize: "12px", opacity: 0.5 }}>{desc}</div>
       </div>
       {label && (
@@ -252,8 +340,6 @@ function SettingItem({ icon, title, desc, active, onClick, label, danger }) {
           transition: "all 0.3s ease"
         }}>
           <div style={{
-            width: "20px",
-            height: "200%", // wait, why 200%? typo
             width: "20px",
             height: "20px",
             background: "white",

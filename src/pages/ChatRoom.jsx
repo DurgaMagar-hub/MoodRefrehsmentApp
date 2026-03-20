@@ -14,7 +14,7 @@ export default function ChatRoom() {
   const chatContainerRef = useRef(null);
   const socketRef = useRef(null);
 
-  const CONNECTION_PORT = "http://localhost:3001";
+  const CONNECTION_PORT = import.meta.env.VITE_SOCKET_URL || "http://localhost:3001";
 
   // Room Colors
   // Room Colors - Enhanced Immersive Gradients

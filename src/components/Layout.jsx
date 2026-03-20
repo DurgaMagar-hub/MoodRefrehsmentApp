@@ -15,8 +15,8 @@ export default function Layout({ children, showNav = true, title, subtitle, show
     // Use page-specific disableScroll or default based on location
     const finalDisableScroll = disableScroll !== undefined ? disableScroll : ["/", "/home", "/login", "/splash"].includes(location.pathname);
 
-    // Override aura background with strict dark theme or custom immersive gradient
-    const currentBackground = customBackground || (isDarkTheme ? "var(--bg-gradient)" : (aura?.gradient || "var(--bg-gradient)"));
+    // Use strictly the theme-based gradient (no mood-based aura background)
+    const currentBackground = customBackground || "var(--bg-gradient)";
 
     return (
         <div className="animate-fade-in" style={{

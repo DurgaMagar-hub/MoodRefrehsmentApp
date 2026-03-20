@@ -78,7 +78,7 @@ export default function Home() {
               display: "flex",
               alignItems: "center",
               gap: "2vh",
-              boxShadow: "var(--shadow-md), inset 0 1px 1px rgba(255, 255, 255, 0.4)",
+              boxShadow: "var(--shadow-md), var(--glass-inset)",
               borderRadius: "20px",
               position: "relative",
               overflow: "hidden"
@@ -119,7 +119,7 @@ export default function Home() {
                     boxSizing: "border-box",
                     minHeight: 0,
                     gap: "1vh",
-                    boxShadow: "var(--shadow-md), inset 0 1px 1px rgba(255, 255, 255, 0.4)",
+                    boxShadow: "var(--shadow-md), var(--glass-inset)",
                     position: "relative",
                     overflow: "hidden"
                   }}
