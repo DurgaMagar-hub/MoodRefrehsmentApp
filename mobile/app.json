@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "Mood Refreshment",
+    "slug": "mood-refreshment",
+    "version": "1.0.0",
+    "scheme": "moodrefreshment",
+    "sdkVersion": "54.0.0",
+    "orientation": "portrait",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f0f1a"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.moodrefreshment.app"
+    },
+    "android": {
+      "package": "com.moodrefreshment.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0f0f1a",
+        "foregroundImage": "./assets/android-icon-foreground.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-web-browser",
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "4d80d18d-8b21-4079-a532-30dadbfc041e"
+      },
+      "googleClientId": "309516516518-rq3rla7m3s5v1hqpif7pdpchm4slqu22.apps.googleusercontent.com"
+    }
+  }
+}
