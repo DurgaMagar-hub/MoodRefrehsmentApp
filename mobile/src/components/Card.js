@@ -13,14 +13,14 @@ export default function Card({ children, isDark = false, style, noPadding = fals
 
     const webStyle = isWeb
         ? {
-              backgroundColor: isDark ? 'rgba(22, 12, 40, 0.55)' : 'rgba(255, 255, 255, 0.72)',
+              backgroundColor: isDark ? 'rgba(12, 20, 32, 0.62)' : 'rgba(255, 255, 255, 0.78)',
               backdropFilter: 'blur(24px)',
           }
         : {};
 
     const androidStyle = isAndroid
         ? {
-              backgroundColor: isDark ? 'rgba(32, 22, 52, 0.92)' : 'rgba(255, 250, 252, 0.92)',
+              backgroundColor: isDark ? 'rgba(12, 20, 32, 0.92)' : 'rgba(246, 251, 255, 0.92)',
           }
         : {};
 
@@ -32,7 +32,7 @@ export default function Card({ children, isDark = false, style, noPadding = fals
                     styles.card,
                     !noPadding && styles.padded,
                     {
-                        borderColor: isDark ? 'rgba(255,255,255,0.14)' : 'rgba(168, 85, 247, 0.14)',
+                        borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(20, 32, 51, 0.08)',
                     },
                     isWeb || isAndroid ? { ...webStyle, ...androidStyle } : {},
                 ]}
@@ -51,11 +51,11 @@ const styles = StyleSheet.create({
     },
     shadowLight: {
         ...theme.shadows.soft,
-        shadowColor: '#7c3aed',
+        shadowColor: 'rgba(122, 166, 255, 0.25)',
     },
     shadowDark: {
         ...theme.shadows.medium,
-        shadowColor: '#0a0616',
+        shadowColor: '#06101a',
     },
     card: {
         borderRadius: theme.borderRadius.xl,

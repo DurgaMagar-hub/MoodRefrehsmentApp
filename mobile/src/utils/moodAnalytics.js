@@ -2,6 +2,8 @@
  * Client-side mood intelligence (heuristic — swap for LLM / server later).
  */
 
+import { toLocalCalendarDateKey, localDateKeyFromDate, localNoonFromDateKey } from './deviceTime';
+
 const DISTRESS_LABELS = new Set(['Gloomy', 'Anxious', 'Angry', 'Stressed']);
 
 export function isDistressMood(mood) {
@@ -13,7 +15,7 @@ export function isDistressMood(mood) {
 export function moodEntriesByDay(entries) {
     const map = new Map();
     for (const e of entries || []) {
-        const d = (e.createdAt || '').slice(0, 10);
+        const d = toLocalCalendarDateKey(e.createdAt);
         if (!d) continue;
         if (!map.has(d)) map.set(d, []);
         map.get(d).push(e);
@@ -26,11 +28,11 @@ export function computeStreak(entries) {
 
     const days = new Set();
     for (const e of entries) {
-        const d = (e.createdAt || '').slice(0, 10);
+        const d = toLocalCalendarDateKey(e.createdAt);
         if (d) days.add(d);
     }
 
-    const toKey = (date) => date.toISOString().slice(0, 10);
+    const toKey = (date) => localDateKeyFromDate(date);
     const today = new Date();
 
     let current = 0;
@@ -49,9 +51,9 @@ export function computeStreak(entries) {
     for (const d of [...days].sort()) {
         if (!prev) run = 1;
         else {
-            const a = new Date(prev + 'T12:00:00');
-            const b = new Date(d + 'T12:00:00');
-            const diff = Math.round((b - a) / 86400000);
+            const a = localNoonFromDateKey(prev);
+            const b = localNoonFromDateKey(d);
+            const diff = a && b ? Math.round((b - a) / 86400000) : 999;
             run = diff === 1 ? run + 1 : 1;
         }
         longest = Math.max(longest, run);
@@ -66,7 +68,7 @@ export function computeWeeklySummary(entries) {
     const now = new Date();
     const start = new Date(now);
     start.setDate(start.getDate() - 6);
-    const fmt = (dt) => dt.toISOString().slice(0, 10);
+    const fmt = (dt) => localDateKeyFromDate(dt);
     const week = [];
     for (let i = 0; i < 7; i++) {
         const d = new Date(start);
@@ -75,7 +77,7 @@ export function computeWeeklySummary(entries) {
     }
 
     for (const e of entries || []) {
-        const day = (e.createdAt || '').slice(0, 10);
+        const day = toLocalCalendarDateKey(e.createdAt);
         const bucket = week.find((w) => w.date === day);
         if (bucket) {
             bucket.count++;
@@ -89,54 +91,21 @@ export function computeWeeklySummary(entries) {
         }
     }
     const totalLogs = week.reduce((s, w) => s + w.count, 0);
-    const energies = (entries || [])
+    const windowed = (entries || [])
         .filter((e) => {
-            const d = (e.createdAt || '').slice(0, 10);
+            const d = toLocalCalendarDateKey(e.createdAt);
             return week.some((w) => w.date === d);
-        })
-        .map((e) => Number(e.energy) || 50);
+        });
+
+    const energies = windowed.map((e) => Number(e.energy) || 50);
     const avgEnergy = energies.length ? Math.round(energies.reduce((a, b) => a + b, 0) / energies.length) : null;
 
-    return { week, totalLogs, avgEnergy };
-}
+    const stresses = windowed.map((e) => (e.stress === null || e.stress === undefined ? null : Number(e.stress))).filter((x) => Number.isFinite(x));
+    const sleeps = windowed.map((e) => (e.sleep === null || e.sleep === undefined ? null : Number(e.sleep))).filter((x) => Number.isFinite(x));
+    const avgStress = stresses.length ? Math.round(stresses.reduce((a, b) => a + b, 0) / stresses.length) : null;
+    const avgSleep = sleeps.length ? Math.round(sleeps.reduce((a, b) => a + b, 0) / sleeps.length) : null;
 
-export function generateInsightMessages(entries) {
-    const streak = computeStreak(entries);
-    const weekly = computeWeeklySummary(entries);
-    const lines = [];
-
-    if (streak.current >= 7) {
-        lines.push(`You've checked in ${streak.current} days in a row — that consistency rewires the brain toward self-awareness.`);
-    } else if (streak.current >= 3) {
-        lines.push(`A ${streak.current}-day streak is forming. Small repeats beat perfect plans.`);
-    } else if (entries?.length >= 1) {
-        lines.push('Logging today already puts you ahead of most people who only think about tracking.');
-    }
-
-    if (weekly.avgEnergy != null) {
-        if (weekly.avgEnergy >= 70) {
-            lines.push('This week your energy has run high — channel it, but watch for crash days.');
-        } else if (weekly.avgEnergy <= 35) {
-            lines.push('Energy has been gentle this week — prioritize rest, sunlight, and micro-wins.');
-        } else {
-            lines.push('Your energy has been in a balanced range — a good moment to notice what helps vs drains.');
-        }
-    }
-
-    if (entries?.length >= 5) {
-        const recent = entries.slice(0, 5);
-        const labels = recent.map((e) => e.label || e.mood).filter(Boolean);
-        const uniq = new Set(labels);
-        if (uniq.size === 1) {
-            lines.push(`Your last few check-ins lean toward "${[...uniq][0]}". If that feels stuck, try one opposite action today (move, reach out, or breathe).`);
-        }
-    }
-
-    if (!lines.length) {
-        lines.push('Check in a few times this week to unlock personalized patterns.');
-    }
-
-    return { headline: lines[0], supporting: lines.slice(1, 3) };
+    return { week, totalLogs, avgEnergy, avgStress, avgSleep };
 }
 
 export function computeBadges(streak, totalMoods, journalCount) {
@@ -149,20 +118,4 @@ export function computeBadges(streak, totalMoods, journalCount) {
     if (totalMoods >= 50) badges.push({ id: 'scribe-50', title: 'Pattern Seeker', desc: '50 mood logs' });
     if (journalCount >= 3) badges.push({ id: 'journal-3', title: 'Inner Voice', desc: '3 journal entries' });
     return badges;
-}
-
-/** Local "AI summary" for journal — replace with model API when ready. */
-export function summarizeJournalText(text) {
-    const t = (text || '').trim();
-    if (!t) return '';
-    const first = t.split(/\n+/)[0];
-    const clip = first.length > 160 ? `${first.slice(0, 157)}…` : first;
-    const words = t.toLowerCase().split(/\s+/).filter((w) => w.length > 4);
-    const freq = {};
-    for (const w of words) {
-        freq[w] = (freq[w] || 0) + 1;
-    }
-    const top = Object.entries(freq).sort((a, b) => b[1] - a[1])[0];
-    const themeHint = top ? ` Themes circling "${top[0]}".` : '';
-    return `Summary: ${clip}${themeHint}`;
 }

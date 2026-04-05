@@ -4,7 +4,7 @@ import { Appearance } from 'react-native';
 import axios from "axios";
 import { theme } from "../styles/theme";
 import { API_URL } from "../config";
-import { computeStreak, computeWeeklySummary, generateInsightMessages, computeBadges } from "../utils/moodAnalytics";
+import { computeStreak, computeWeeklySummary, computeBadges } from "../utils/moodAnalytics";
 
 export const MoodContext = createContext();
 
@@ -16,7 +16,7 @@ export const MoodProvider = ({ children }) => {
     const [quotes, setQuotes] = useState([]);
     const [isDarkTheme, setIsDarkTheme] = useState(Appearance.getColorScheme() === 'dark');
     
-    const [settings, setSettings] = useState({ theme: 'system', notifications: true });
+    const [settings, setSettings] = useState({ theme: 'system', notifications: false });
 
     // Initial Data Fetch
     useEffect(() => {
@@ -31,13 +31,8 @@ export const MoodProvider = ({ children }) => {
                     if (parsed && typeof parsed === 'object') setSettings(parsed);
                 }
 
-                const [accRes, quoteRes] = await Promise.all([
-                    axios.get(`${API_URL}/users`),
-                    axios.get(`${API_URL}/quotes`)
-                ]);
-                
+                const accRes = await axios.get(`${API_URL}/users`);
                 if (accRes.data) setAccounts(Array.isArray(accRes.data) ? accRes.data : []);
-                if (quoteRes.data) setQuotes(Array.isArray(quoteRes.data) ? quoteRes.data : []);
             } catch (err) {
                 console.warn("Could not reach backend server for initial data. Check your config.js IP address.");
             }
@@ -51,19 +46,23 @@ export const MoodProvider = ({ children }) => {
             if (!user?.id) {
                 setMoodHistory([]);
                 setJournalEntries([]);
+                setQuotes([]);
                 return;
             }
             const cacheKey = `moodCache_${user.id}`;
             const journalKey = `journalCache_${user.id}`;
             try {
-                const [moodRes, journalRes] = await Promise.all([
+                const [moodRes, journalRes, motRes] = await Promise.all([
                     axios.get(`${API_URL}/moods?userId=${user.id}`),
-                    axios.get(`${API_URL}/journals?userId=${user.id}`)
+                    axios.get(`${API_URL}/journals?userId=${user.id}`),
+                    axios.get(`${API_URL}/user-motivation-quotes?userId=${user.id}`),
                 ]);
                 const moods = Array.isArray(moodRes.data) ? moodRes.data : [];
                 const journals = Array.isArray(journalRes.data) ? journalRes.data : [];
+                const motivation = Array.isArray(motRes.data) ? motRes.data : [];
                 setMoodHistory(moods);
                 setJournalEntries(journals);
+                setQuotes(motivation);
                 await AsyncStorage.setItem(cacheKey, JSON.stringify(moods));
                 await AsyncStorage.setItem(journalKey, JSON.stringify(journals));
             } catch (err) {
@@ -116,7 +115,11 @@ export const MoodProvider = ({ children }) => {
             userId: user?.id, 
             mood: moodData.emoji || moodData, 
             energy: moodData.energy ?? 50, 
-            label: moodData.label || "Checked in" 
+            label: moodData.label || "Checked in",
+            stress: moodData.stress ?? null,
+            sleep: moodData.sleep ?? null,
+            tags: Array.isArray(moodData.tags) ? moodData.tags : [],
+            challenge: moodData.challenge || null,
         };
         try {
             const res = await axios.post(`${API_URL}/moods`, moodEntry);
@@ -143,7 +146,7 @@ export const MoodProvider = ({ children }) => {
 
     const updateUserIdentity = async (email, identity) => {
         try {
-            const res = await axios.put(`${API_URL}/users/${email}`, identity);
+            const res = await axios.put(`${API_URL}/users/${encodeURIComponent(email)}`, identity);
             const updatedUser = res.data;
             setUser(updatedUser);
             await AsyncStorage.setItem("user", JSON.stringify(updatedUser));
@@ -157,7 +160,7 @@ export const MoodProvider = ({ children }) => {
     const deleteAccount = async (email) => {
         if (email === "admin@mood.com") return;
         try {
-            await axios.delete(`${API_URL}/users/${email}`);
+            await axios.delete(`${API_URL}/users/${encodeURIComponent(email)}`);
             setAccounts(prev => prev.filter(acc => acc.email !== email));
         } catch (err) {
             console.error("Error deleting account", err);
@@ -170,7 +173,7 @@ export const MoodProvider = ({ children }) => {
         if (!account) return;
         const newRole = account.role === 'admin' ? 'user' : 'admin';
         try {
-            await axios.put(`${API_URL}/users/${email}/role`, { role: newRole });
+            await axios.put(`${API_URL}/users/${encodeURIComponent(email)}/role`, { role: newRole });
             setAccounts(prev => prev.map(acc =>
                 acc.email === email ? { ...acc, role: newRole } : acc
             ));
@@ -188,8 +191,10 @@ export const MoodProvider = ({ children }) => {
                 if (user?.id) AsyncStorage.setItem(`journalCache_${user.id}`, JSON.stringify(next)).catch(() => {});
                 return next;
             });
+            return res.data;
         } catch (err) {
             console.error("Error saving journal:", err);
+            throw err;
         }
     };
 
@@ -203,18 +208,34 @@ export const MoodProvider = ({ children }) => {
                 if (user?.id) AsyncStorage.setItem(`journalCache_${user.id}`, JSON.stringify(next)).catch(() => {});
                 return next;
             });
+            return res.data;
         } catch (err) {
             console.error("Error updating journal:", err);
+            throw err;
         }
     };
 
     const addQuote = async (text) => {
-        if (!text || quotes.includes(text)) return;
+        const t = (text || '').trim();
+        if (!t || !user?.id) return;
+        if (quotes.some((q) => (typeof q === 'string' ? q : q.text) === t)) return;
         try {
-            const res = await axios.post(`${API_URL}/quotes`, { text });
-            setQuotes(prev => [res.data.text, ...prev]);
+            const res = await axios.post(`${API_URL}/user-motivation-quotes`, { userId: user.id, text: t });
+            const row = res.data;
+            setQuotes((prev) => [{ id: row.id, text: row.text }, ...prev]);
         } catch (err) {
             console.error("Error saving quote:", err);
+        }
+    };
+
+    const deleteUserQuote = async (quoteId) => {
+        if (!user?.id || quoteId == null) return;
+        try {
+            await axios.delete(`${API_URL}/user-motivation-quotes/${quoteId}?userId=${user.id}`);
+            setQuotes((prev) => prev.filter((q) => q.id !== quoteId));
+        } catch (err) {
+            console.error("Error deleting quote:", err);
+            throw err;
         }
     };
 
@@ -249,9 +270,8 @@ export const MoodProvider = ({ children }) => {
     const moodInsights = useMemo(() => {
         const streak = computeStreak(moodHistory);
         const weekly = computeWeeklySummary(moodHistory);
-        const messages = generateInsightMessages(moodHistory);
         const badges = computeBadges(streak, moodHistory.length, journalEntries.length);
-        return { streak, weekly, messages, badges };
+        return { streak, weekly, badges };
     }, [moodHistory, journalEntries.length]);
 
     return (
@@ -264,7 +284,7 @@ export const MoodProvider = ({ children }) => {
             addMood, addJournalEntry, updateJournalEntry,
             updateUserIdentity, clearAllData,
             deleteAccount, toggleAccountRole,
-            addQuote
+            addQuote, deleteUserQuote
         }}>
             {children}
         </MoodContext.Provider>

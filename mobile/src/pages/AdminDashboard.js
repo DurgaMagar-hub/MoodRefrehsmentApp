@@ -1,6 +1,7 @@
-import React, { useContext, useState, useEffect, useMemo } from 'react';
+import React, { useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import axios from 'axios';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Platform, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Platform, Dimensions, BackHandler } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { theme } from '../styles/theme';
 import SafeScreen from '../components/SafeScreen';
 import { MoodContext } from '../context/MoodContext';
@@ -8,6 +9,7 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 import { Feather } from '@expo/vector-icons';
 import { API_URL } from '../config';
+import { parseBackendDate } from '../utils/deviceTime';
 
 const { width } = Dimensions.get('window');
 
@@ -16,6 +18,14 @@ export default function AdminDashboardScreen({ navigation }) {
     const [isLoading, setIsLoading] = useState(false);
     const [allMoods, setAllMoods] = useState([]);
     const isDark = isDarkTheme;
+
+    useFocusEffect(
+        useCallback(() => {
+            const onHardwareBack = () => true;
+            const sub = BackHandler.addEventListener('hardwareBackPress', onHardwareBack);
+            return () => sub.remove();
+        }, [])
+    );
 
     useEffect(() => {
         let cancelled = false;
@@ -36,7 +46,10 @@ export default function AdminDashboardScreen({ navigation }) {
         const sum = allMoods.reduce((s, m) => s + (Number(m.energy) || 0), 0);
         const cutoff = new Date();
         cutoff.setDate(cutoff.getDate() - 7);
-        const recent = allMoods.filter((m) => m.createdAt && new Date(m.createdAt) >= cutoff);
+        const recent = allMoods.filter((m) => {
+            const t = parseBackendDate(m.createdAt);
+            return t && t >= cutoff;
+        });
         return { avgEnergy: Math.round(sum / n), last7: recent.length };
     }, [allMoods]);
 
@@ -89,13 +102,7 @@ export default function AdminDashboardScreen({ navigation }) {
     return (
         <SafeScreen style={[styles.container, { backgroundColor: isDark ? theme.dark.background : theme.light.background }]}>
             <View style={styles.header}>
-                <TouchableOpacity 
-                    onPress={() => navigation.goBack()} 
-                    style={[styles.backBtn, { backgroundColor: isDark ? theme.colors.glassDark : theme.light.card }]}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                    <Feather name="chevron-left" size={24} color={isDark ? '#fff' : '#000'} />
-                </TouchableOpacity>
+                <View style={styles.headerSideSpacer} />
                 <View style={styles.headerInfo}>
                     <Text style={[styles.headerTitle, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>Admin Console</Text>
                     <Text style={styles.headerSub}>Full System Control</Text>
@@ -110,12 +117,14 @@ export default function AdminDashboardScreen({ navigation }) {
                 <View style={styles.statsRow}>
                     {stats.map((stat, idx) => (
                         <View key={idx} style={styles.statWrap}>
-                            <Card isDark={isDark} style={styles.statCard} intensity={isDark ? 40 : 80}>
+                            <Card isDark={isDark} style={styles.statCard} intensity={isDark ? 34 : 62} noPadding>
+                                <View style={styles.statInner}>
                                 <View style={[styles.statIconBox, { backgroundColor: theme.colors.primary + '22' }]}>
                                     <Feather name={stat.icon} size={22} color={theme.colors.primary} />
                                 </View>
                                 <Text style={[styles.statValue, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>{stat.value}</Text>
                                 <Text style={[styles.statLabel, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>{stat.label}</Text>
+                                </View>
                             </Card>
                         </View>
                     ))}
@@ -125,21 +134,36 @@ export default function AdminDashboardScreen({ navigation }) {
                 <Text style={[styles.sectionTitle, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>Monitoring Controls</Text>
                 <View style={styles.controlsGrid}>
                     <TouchableOpacity style={styles.controlItem} onPress={() => navigation.navigate('EmotionRooms')} activeOpacity={0.8}>
-                        <Card isDark={isDark} style={styles.controlCard} intensity={isDark ? 40 : 80}>
+                        <Card isDark={isDark} style={styles.controlCard} intensity={isDark ? 34 : 62} noPadding>
+                            <View style={styles.controlInner}>
                             <View style={[styles.controlIcon, { backgroundColor: theme.colors.secondary + '22' }]}>
                                 <Feather name="message-square" color={theme.colors.secondary} size={22} />
                             </View>
                             <Text style={[styles.controlName, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>Rooms</Text>
                             <Text style={[styles.controlDesc, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>Track chats</Text>
+                            </View>
+                        </Card>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.controlItem} onPress={() => navigation.navigate('AdminChatReports')} activeOpacity={0.8}>
+                        <Card isDark={isDark} style={styles.controlCard} intensity={isDark ? 34 : 62} noPadding>
+                            <View style={styles.controlInner}>
+                            <View style={[styles.controlIcon, { backgroundColor: theme.colors.danger + '22' }]}>
+                                <Feather name="flag" color={theme.colors.danger} size={22} />
+                            </View>
+                            <Text style={[styles.controlName, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>Reports</Text>
+                            <Text style={[styles.controlDesc, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>Chat moderation</Text>
+                            </View>
                         </Card>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.controlItem} onPress={() => navigation.navigate('Motivation')} activeOpacity={0.8}>
-                        <Card isDark={isDark} style={styles.controlCard} intensity={isDark ? 40 : 80}>
+                        <Card isDark={isDark} style={styles.controlCard} intensity={isDark ? 34 : 62} noPadding>
+                            <View style={styles.controlInner}>
                             <View style={[styles.controlIcon, { backgroundColor: theme.colors.accent + '22' }]}>
                                 <Feather name="zap" color={theme.colors.accent} size={22} />
                             </View>
-                            <Text style={[styles.controlName, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>Content</Text>
-                            <Text style={[styles.controlDesc, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>Daily vibes</Text>
+                            <Text style={[styles.controlName, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>Inspiration</Text>
+                            <Text style={[styles.controlDesc, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>Manage quotes</Text>
+                            </View>
                         </Card>
                     </TouchableOpacity>
                 </View>
@@ -152,7 +176,8 @@ export default function AdminDashboardScreen({ navigation }) {
 
                 <View style={styles.userList}>
                     {accounts.map((account) => (
-                        <Card key={account.email} isDark={isDark} style={styles.userCard} intensity={isDark ? 30 : 60}>
+                        <Card key={account.email} isDark={isDark} style={styles.userCard} intensity={isDark ? 30 : 56} noPadding>
+                            <View style={styles.userInner}>
                             <View style={[styles.avatar, { backgroundColor: account.color || theme.colors.primary + '22' }]}>
                                 <Text style={styles.avatarEmoji}>{account.avatar || "👤"}</Text>
                             </View>
@@ -180,6 +205,7 @@ export default function AdminDashboardScreen({ navigation }) {
                                     </TouchableOpacity>
                                 )}
                             </View>
+                            </View>
                         </Card>
                     ))}
                 </View>
@@ -199,16 +225,12 @@ const styles = StyleSheet.create({
         paddingTop: theme.spacing.md,
         paddingBottom: theme.spacing.md,
     },
-    backBtn: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        alignItems: 'center',
-        justifyContent: 'center',
-        ...theme.shadows.soft,
+    headerSideSpacer: {
+        width: 40,
+        height: 40,
     },
     headerInfo: {
-        marginLeft: theme.spacing.md,
+        marginLeft: theme.spacing.sm,
         flex: 1,
     },
     headerTitle: {
@@ -244,9 +266,11 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     statCard: {
-        padding: 24,
-        alignItems: 'center',
         borderRadius: theme.borderRadius.xl,
+    },
+    statInner: {
+        padding: 20,
+        alignItems: 'center',
     },
     statIconBox: {
         width: 50,
@@ -257,8 +281,8 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     statValue: {
-        fontSize: 36,
-        fontWeight: '900',
+        fontSize: 32,
+        fontFamily: theme.fontFamily.displaySemi,
     },
     statLabel: {
         ...theme.typography.caption,
@@ -276,15 +300,19 @@ const styles = StyleSheet.create({
     },
     controlsGrid: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
         marginBottom: 32,
+        justifyContent: 'space-between',
     },
     controlItem: {
-        flex: 1,
-        marginHorizontal: 6, // Replaces gap
+        width: '48.5%',
+        marginBottom: 12,
     },
     controlCard: {
-        padding: 16,
         borderRadius: 24,
+    },
+    controlInner: {
+        padding: 16,
     },
     controlIcon: {
         width: 44,
@@ -313,11 +341,13 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
     },
     userCard: {
-        flexDirection: 'row',
-        padding: 12,
-        alignItems: 'center',
         borderRadius: 24,
         marginBottom: 12, // Replaces gap
+    },
+    userInner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 14,
     },
     avatar: {
         width: 50,

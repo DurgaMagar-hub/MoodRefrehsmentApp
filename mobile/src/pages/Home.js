@@ -102,36 +102,51 @@ export default function HomeScreen({ navigation }) {
                 </FadeInView>
 
                 <FadeInView delay={180}>
-                    <TouchableOpacity onPress={() => navigation.navigate('MoodInsights')} activeOpacity={0.88}>
-                        <Card isDark={isDark} style={styles.insightPreview}>
-                            <View style={styles.insightRow}>
-                                <View style={[styles.streakPill, { backgroundColor: theme.colors.secondary + '22' }]}>
-                                    <Text style={[styles.streakNum, { color: theme.colors.secondary }]}>
+                    <TouchableOpacity onPress={() => navigation.navigate('MoodInsights')} activeOpacity={0.9}>
+                        <View style={[styles.insightPreview, isDark ? styles.insightPreviewDark : styles.insightPreviewLight]}>
+                            <View style={styles.insightTopRow}>
+                                <View style={styles.insightHeadingRow}>
+                                    <View style={[styles.insightDot, { backgroundColor: theme.colors.secondary }]} />
+                                    <Text style={[styles.insightEyebrow, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>
+                                        Mood insights
+                                    </Text>
+                                </View>
+                                <Feather name="chevron-right" size={18} color={isDark ? theme.dark.textSub : theme.light.textSub} />
+                            </View>
+                            <Text style={[styles.insightTitle, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>
+                                {moodInsights?.weekly?.totalLogs
+                                    ? `You've checked in ${moodInsights.weekly.totalLogs} times this week.`
+                                    : 'Start a check-in to build your weekly rhythm.'}
+                            </Text>
+                            <View style={styles.insightStatRow}>
+                                <View style={[styles.insightStatPill, { backgroundColor: theme.colors.secondary + '20' }]}>
+                                    <Text style={[styles.insightStatValue, { color: theme.colors.secondary }]}>
                                         {moodInsights?.streak?.current ?? 0}
                                     </Text>
-                                    <Text style={[styles.streakLabel, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>
+                                    <Text style={[styles.insightStatLabel, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>
                                         day streak
                                     </Text>
                                 </View>
-                                <Feather name="chevron-right" size={20} color={isDark ? theme.dark.textSub : theme.light.textSub} />
+                                <View style={[styles.insightStatPill, { backgroundColor: theme.colors.primary + '18' }]}>
+                                    <Text style={[styles.insightStatValue, { color: theme.colors.primaryDark }]}>
+                                        {moodInsights?.weekly?.avgEnergy != null ? `${moodInsights.weekly.avgEnergy}%` : '—'}
+                                    </Text>
+                                    <Text style={[styles.insightStatLabel, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>
+                                        avg energy
+                                    </Text>
+                                </View>
                             </View>
-                            <Text
-                                style={[styles.insightPreviewText, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}
-                                numberOfLines={2}
-                            >
-                                {moodInsights?.messages?.headline || 'Open your weekly insights and patterns.'}
-                            </Text>
-                        </Card>
+                        </View>
                     </TouchableOpacity>
                 </FadeInView>
 
                 <FadeInView delay={200} style={styles.sectionHeader}>
-                    <Text style={[styles.sectionTitle, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>Your Intent</Text>
+                    <Text style={[styles.sectionTitle, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>Today</Text>
                 </FadeInView>
 
                 <FadeInView delay={260}>
                 <TouchableOpacity onPress={() => navigation.navigate(prioritizedFeatures[0].path)} activeOpacity={0.8}>
-                    <Card isDark={isDark} style={[styles.primaryCard, { borderColor: activeAuraColor + '55' }]} blurIntensity={isDark ? 50 : 80}>
+                    <Card isDark={isDark} style={[styles.primaryCard, { borderColor: activeAuraColor + '55' }]} blurIntensity={isDark ? 50 : 80} noPadding>
                         <View style={styles.primaryCardContent}>
                             <View style={[styles.cardIconGlow, { backgroundColor: prioritizedFeatures[0].color + '33' }]}>
                                 <Text style={styles.primaryIcon}>{prioritizedFeatures[0].icon}</Text>
@@ -150,33 +165,41 @@ export default function HomeScreen({ navigation }) {
                 </FadeInView>
 
                 <FadeInView delay={340} style={styles.sectionHeader}>
-                    <Text style={[styles.sectionTitle, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>Discover</Text>
+                    <Text style={[styles.sectionTitle, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>Explore gently</Text>
                 </FadeInView>
 
                 <FadeInView delay={400}>
                 <View style={styles.masonryGrid}>
                     <View style={styles.masonryColumn}>
-                        {prioritizedFeatures.slice(1, 4).filter((_, i) => i % 2 === 0).map((f) => (
+                        {prioritizedFeatures.slice(1).filter((_, i) => i % 2 === 0).map((f) => (
                             <TouchableOpacity key={f.name} style={styles.gridItemFlexible} onPress={() => navigation.navigate(f.path)} activeOpacity={0.8}>
-                                <Card isDark={isDark} style={[styles.miniCard, { minHeight: f.cols > 1 ? 160 : 180 }]}>
-                                    <View style={[styles.miniIconBox, { backgroundColor: f.color + '22' }]}>
-                                        <Text style={styles.miniIcon}>{f.icon}</Text>
+                                <Card isDark={isDark} style={[styles.miniCard, { minHeight: f.cols > 1 ? 170 : 190 }]} noPadding>
+                                    <View style={styles.miniInner}>
+                                        <View style={[styles.miniIconBox, { backgroundColor: f.color + '22' }]}>
+                                            <Text style={styles.miniIcon}>{f.icon}</Text>
+                                        </View>
+                                        <Text style={[styles.miniName, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>
+                                            {f.name}
+                                        </Text>
+                                        <Text style={[styles.miniDesc, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>{f.desc}</Text>
                                     </View>
-                                    <Text numberOfLines={1} style={[styles.miniName, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>{f.name}</Text>
-                                    <Text numberOfLines={2} style={[styles.miniDesc, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>{f.desc}</Text>
                                 </Card>
                             </TouchableOpacity>
                         ))}
                     </View>
                     <View style={styles.masonryColumn}>
-                        {prioritizedFeatures.slice(1, 4).filter((_, i) => i % 2 !== 0).map((f) => (
+                        {prioritizedFeatures.slice(1).filter((_, i) => i % 2 !== 0).map((f) => (
                             <TouchableOpacity key={f.name} style={styles.gridItemFlexible} onPress={() => navigation.navigate(f.path)} activeOpacity={0.8}>
-                                <Card isDark={isDark} style={[styles.miniCard, { minHeight: f.cols > 1 ? 160 : 150 }]}>
-                                    <View style={[styles.miniIconBox, { backgroundColor: f.color + '22' }]}>
-                                        <Text style={styles.miniIcon}>{f.icon}</Text>
+                                <Card isDark={isDark} style={[styles.miniCard, { minHeight: f.cols > 1 ? 170 : 175 }]} noPadding>
+                                    <View style={styles.miniInner}>
+                                        <View style={[styles.miniIconBox, { backgroundColor: f.color + '22' }]}>
+                                            <Text style={styles.miniIcon}>{f.icon}</Text>
+                                        </View>
+                                        <Text style={[styles.miniName, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>
+                                            {f.name}
+                                        </Text>
+                                        <Text style={[styles.miniDesc, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>{f.desc}</Text>
                                     </View>
-                                    <Text numberOfLines={1} style={[styles.miniName, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>{f.name}</Text>
-                                    <Text numberOfLines={2} style={[styles.miniDesc, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>{f.desc}</Text>
                                 </Card>
                             </TouchableOpacity>
                         ))}
@@ -272,25 +295,66 @@ const styles = StyleSheet.create({
         fontSize: 40,
     },
     insightPreview: {
-        paddingVertical: theme.spacing.md,
+        borderRadius: theme.borderRadius.xl,
+        borderWidth: 1,
+        paddingTop: theme.spacing.md,
         paddingHorizontal: theme.spacing.lg,
+        paddingBottom: theme.spacing.md,
+        marginBottom: theme.spacing.lg,
     },
-    insightRow: {
+    insightPreviewLight: {
+        backgroundColor: 'rgba(255,255,255,0.88)',
+        borderColor: 'rgba(20, 32, 51, 0.06)',
+    },
+    insightPreviewDark: {
+        backgroundColor: 'rgba(12, 20, 32, 0.80)',
+        borderColor: 'rgba(255,255,255,0.08)',
+    },
+    insightTopRow: {
         flexDirection: 'row',
-        alignItems: 'center',
         justifyContent: 'space-between',
+        alignItems: 'center',
         marginBottom: theme.spacing.sm,
     },
-    streakPill: {
+    insightHeadingRow: {
         flexDirection: 'row',
-        alignItems: 'baseline',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: theme.borderRadius.full,
+        alignItems: 'center',
     },
-    streakNum: { fontSize: 20, fontFamily: theme.fontFamily.displayMedium, fontWeight: '600' },
-    streakLabel: { ...theme.typography.caption, letterSpacing: 1, marginLeft: 6 },
-    insightPreviewText: { ...theme.typography.body, lineHeight: 22 },
+    insightDot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        marginRight: 8,
+    },
+    insightEyebrow: {
+        ...theme.typography.caption,
+        letterSpacing: 0.8,
+        textTransform: 'uppercase',
+    },
+    insightTitle: {
+        ...theme.typography.body,
+        lineHeight: 21,
+        marginBottom: 12,
+    },
+    insightStatRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: theme.spacing.md,
+    },
+    insightStatPill: {
+        width: '48.5%',
+        borderRadius: theme.borderRadius.md,
+        paddingVertical: 11,
+        paddingHorizontal: 12,
+    },
+    insightStatValue: {
+        fontSize: 20,
+        fontFamily: theme.fontFamily.displaySemi,
+    },
+    insightStatLabel: {
+        ...theme.typography.caption,
+        marginTop: 3,
+    },
     sectionHeader: {
         marginTop: theme.spacing.md,
         marginBottom: theme.spacing.md,
@@ -338,8 +402,12 @@ const styles = StyleSheet.create({
         marginBottom: theme.spacing.md,
     },
     miniCard: {
-        padding: theme.spacing.md,
+        // padding is applied by miniInner to avoid double-padding with Card
         justifyContent: 'flex-start',
+    },
+    miniInner: {
+        padding: theme.spacing.lg,
+        paddingTop: theme.spacing.lg,
     },
     miniIconBox: {
         width: 48,
@@ -355,9 +423,12 @@ const styles = StyleSheet.create({
     miniName: {
         ...theme.typography.subtitle,
         marginBottom: 4,
+        lineHeight: 20,
     },
     miniDesc: {
         fontSize: 13,
         fontWeight: '500',
+        lineHeight: 18,
+        opacity: 0.85,
     }
 });

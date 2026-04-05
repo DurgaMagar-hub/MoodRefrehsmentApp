@@ -5,14 +5,13 @@ import { theme } from '../styles/theme';
 import { MoodContext } from '../context/MoodContext';
 import Card from '../components/Card';
 import { Feather } from '@expo/vector-icons';
-import { computeWeeklySummary, generateInsightMessages } from '../utils/moodAnalytics';
+import { computeWeeklySummary } from '../utils/moodAnalytics';
 
 export default function MoodInsightsScreen({ navigation }) {
     const { moodHistory, isDarkTheme, moodInsights } = useContext(MoodContext);
     const isDark = isDarkTheme;
 
     const weekly = useMemo(() => computeWeeklySummary(moodHistory), [moodHistory]);
-    const copy = useMemo(() => generateInsightMessages(moodHistory), [moodHistory]);
     const badges = moodInsights?.badges || [];
 
     const maxCount = Math.max(1, ...weekly.week.map((w) => w.count));
@@ -30,24 +29,42 @@ export default function MoodInsightsScreen({ navigation }) {
                 <View style={{ flex: 1, marginLeft: 12 }}>
                     <Text style={[styles.headerTitle, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>Insights</Text>
                     <Text style={[styles.headerSub, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>
-                        Patterns from your check-ins
+                        A calm view of your week
                     </Text>
                 </View>
             </View>
 
             <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-                <Card isDark={isDark} style={styles.heroCard}>
-                    <Text style={[styles.heroLabel, { color: theme.colors.secondary }]}>This week</Text>
-                    <Text style={[styles.heroText, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>{copy.headline}</Text>
-                    {copy.supporting.map((line, i) => (
-                        <Text key={i} style={[styles.support, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>
-                            {line}
+                <Card isDark={isDark} style={styles.heroCard} noPadding>
+                    <View style={styles.heroInner}>
+                        <Text style={[styles.heroLabel, { color: theme.colors.secondary }]}>This week</Text>
+                        <Text style={[styles.heroTitle, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>
+                            Your emotional rhythm
                         </Text>
-                    ))}
+                        <View style={styles.heroStatsRow}>
+                            <View style={[styles.heroStatPill, { backgroundColor: theme.colors.primary + '1f' }]}>
+                                <Text style={[styles.heroStatValue, { color: theme.colors.primaryDark }]}>
+                                    {weekly.totalLogs}
+                                </Text>
+                                <Text style={[styles.heroStatLabel, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>
+                                    check-ins
+                                </Text>
+                            </View>
+                            <View style={[styles.heroStatPill, { backgroundColor: theme.colors.secondary + '20' }]}>
+                                <Text style={[styles.heroStatValue, { color: theme.colors.secondary }]}>
+                                    {weekly.avgEnergy != null ? `${weekly.avgEnergy}%` : '—'}
+                                </Text>
+                                <Text style={[styles.heroStatLabel, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>
+                                    avg energy
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
                 </Card>
 
                 <Text style={[styles.sectionLabel, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>7-day rhythm</Text>
-                <Card isDark={isDark} style={styles.chartCard}>
+                <Card isDark={isDark} style={styles.chartCard} noPadding>
+                    <View style={styles.chartInner}>
                     <View style={styles.bars}>
                         {weekly.week.map((w) => {
                             const h = w.count ? (w.count / maxCount) * 120 : 4;
@@ -73,9 +90,10 @@ export default function MoodInsightsScreen({ navigation }) {
                     <Text style={[styles.chartCaption, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>
                         {weekly.totalLogs} check-ins · avg energy {weekly.avgEnergy != null ? `${weekly.avgEnergy}%` : '—'}
                     </Text>
+                    </View>
                 </Card>
 
-                <Text style={[styles.sectionLabel, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>Achievements</Text>
+                <Text style={[styles.sectionLabel, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>Milestones</Text>
                 <View style={styles.badgeGrid}>
                     {badges.map((b) => (
                         <Card key={b.id} isDark={isDark} style={styles.badgeCard} noPadding>
@@ -88,7 +106,7 @@ export default function MoodInsightsScreen({ navigation }) {
                     ))}
                     {!badges.length && (
                         <Text style={{ color: isDark ? theme.dark.textSub : theme.light.textSub, paddingHorizontal: 8 }}>
-                            Keep checking in to unlock badges.
+                            Check in whenever you can. Badges unlock over time.
                         </Text>
                     )}
                 </View>
@@ -118,11 +136,28 @@ const styles = StyleSheet.create({
     headerSub: { ...theme.typography.caption, marginTop: 4 },
     scroll: { paddingHorizontal: theme.spacing.lg, paddingBottom: 100 },
     heroCard: { marginBottom: theme.spacing.lg },
+    heroInner: { padding: theme.spacing.lg },
     heroLabel: { ...theme.typography.caption, marginBottom: 8 },
-    heroText: { ...theme.typography.h3, marginBottom: 12 },
+    heroTitle: { ...theme.typography.h3, marginBottom: 14 },
+    heroStatsRow: { flexDirection: 'row', justifyContent: 'space-between' },
+    heroStatPill: {
+        width: '48.5%',
+        borderRadius: theme.borderRadius.md,
+        paddingVertical: 12,
+        paddingHorizontal: 12,
+    },
+    heroStatValue: {
+        fontSize: 20,
+        fontFamily: theme.fontFamily.displaySemi,
+    },
+    heroStatLabel: {
+        ...theme.typography.caption,
+        marginTop: 3,
+    },
     support: { ...theme.typography.body, marginTop: 8 },
     sectionLabel: { ...theme.typography.label, marginBottom: 10, marginTop: 8 },
     chartCard: { marginBottom: theme.spacing.lg },
+    chartInner: { padding: theme.spacing.lg },
     bars: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', height: 140, paddingTop: 8 },
     barCol: { alignItems: 'center', flex: 1 },
     bar: { width: 10, borderRadius: 5, minHeight: 4 },

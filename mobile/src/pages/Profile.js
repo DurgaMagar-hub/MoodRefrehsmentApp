@@ -48,6 +48,7 @@ export default function ProfileScreen({ navigation }) {
     const [otp, setOtp] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [error, setError] = useState("");
+    const [reminderError, setReminderError] = useState("");
 
     const auraScale = useRef(new Animated.Value(1)).current;
 
@@ -125,8 +126,89 @@ export default function ProfileScreen({ navigation }) {
     };
 
     const toggleNotifications = () => {
-        setSettings({ ...settings, notifications: !settings?.notifications });
+        const nextEnabled = !settings?.notifications;
+        if (!nextEnabled) setReminderError("");
+        setSettings({ ...settings, notifications: nextEnabled });
     };
+
+    const ensureReminderScheduled = async () => {
+        if (Platform.OS === 'web') return;
+        const enabled = !!settings?.notifications;
+        const existingId = settings?.reminderNotificationId;
+
+        // Critical guard: never touch expo-notifications module unless reminders are enabled
+        // (prevents native-module errors on builds without notifications support).
+        if (!enabled) {
+            setReminderError("");
+            return;
+        }
+
+        let Notifications = null;
+        try {
+            // eslint-disable-next-line global-require
+            Notifications = require('expo-notifications');
+        } catch (_) {
+            Notifications = null;
+        }
+
+        if (!Notifications?.getPermissionsAsync) {
+            setReminderError('Reminders are unavailable in this build. Rebuild with native notifications support.');
+            return;
+        }
+
+        let perms;
+        try {
+            perms = await Notifications.getPermissionsAsync();
+        } catch (e) {
+            setReminderError('Could not read notification permissions on this build.');
+            return;
+        }
+
+        if (perms.status !== 'granted') {
+            let req;
+            try {
+                req = await Notifications.requestPermissionsAsync();
+            } catch (e) {
+                setReminderError('Could not request notification permission.');
+                return;
+            }
+            if (req.status !== 'granted') {
+                setReminderError('Notification permission is denied. Enable it in system settings to get reminders.');
+                return;
+            }
+        }
+
+        if (existingId) {
+            try { await Notifications.cancelScheduledNotificationAsync(existingId); } catch (_) {}
+        }
+
+        // Default daily reminder time: 20:00 local time
+        const hour = Number.isFinite(settings?.reminderHour) ? settings.reminderHour : 20;
+        const minute = Number.isFinite(settings?.reminderMinute) ? settings.reminderMinute : 0;
+
+        let id;
+        try {
+            id = await Notifications.scheduleNotificationAsync({
+                content: {
+                    title: "How’s your vibe today?",
+                    body: 'A gentle check-in can help you feel grounded.',
+                },
+                trigger: { hour, minute, repeats: true },
+            });
+        } catch (e) {
+            setReminderError('Could not schedule the reminder. Please try again.');
+            return;
+        }
+
+        setReminderError("");
+        setSettings({ ...settings, reminderNotificationId: id, reminderHour: hour, reminderMinute: minute });
+    };
+
+    useEffect(() => {
+        if (!settings?.notifications && !settings?.reminderNotificationId) return;
+        ensureReminderScheduled().catch(() => {});
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [settings?.notifications, settings?.reminderHour, settings?.reminderMinute]);
 
     const handleTriggerReset = async () => {
         setIsLoading(true);
@@ -261,6 +343,51 @@ export default function ProfileScreen({ navigation }) {
                             right={<Switch value={settings?.notifications} onValueChange={toggleNotifications} trackColor={{ true: theme.colors.primary }} />}
                             isDark={isDark}
                         />
+                        {settings?.notifications ? (
+                            <>
+                                <View style={{ paddingHorizontal: theme.spacing.lg, paddingBottom: theme.spacing.md }}>
+                                    <View style={styles.reminderRow}>
+                                        <Text style={[styles.reminderLabel, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>Time</Text>
+                                        <View style={styles.reminderPills}>
+                                            {[
+                                                { label: 'Morning', hour: 9, minute: 0 },
+                                                { label: 'Noon', hour: 12, minute: 30 },
+                                                { label: 'Evening', hour: 20, minute: 0 },
+                                            ].map((opt) => {
+                                                const active = (settings?.reminderHour ?? 20) === opt.hour && (settings?.reminderMinute ?? 0) === opt.minute;
+                                                return (
+                                                    <TouchableOpacity
+                                                        key={opt.label}
+                                                        onPress={() => setSettings({ ...settings, reminderHour: opt.hour, reminderMinute: opt.minute })}
+                                                        activeOpacity={0.85}
+                                                        style={[
+                                                            styles.reminderPill,
+                                                            {
+                                                                backgroundColor: active ? theme.colors.primary + '22' : (isDark ? theme.colors.glassDark : theme.light.backgroundSecondary),
+                                                                borderColor: active ? theme.colors.primary : (isDark ? 'rgba(255,255,255,0.10)' : theme.light.border),
+                                                            },
+                                                        ]}
+                                                    >
+                                                        <Text style={[styles.reminderPillText, { color: isDark ? theme.dark.textMain : theme.light.textMain, opacity: active ? 1 : 0.7 }]}>
+                                                            {opt.label}
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                );
+                                            })}
+                                        </View>
+                                    </View>
+                                    <Text style={[styles.reminderHint, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>
+                                        “How’s your vibe today?” will pop up daily.
+                                    </Text>
+                                    {reminderError ? (
+                                        <Text style={[styles.reminderError, { color: theme.colors.warning }]}>
+                                            {reminderError}
+                                        </Text>
+                                    ) : null}
+                                </View>
+                                <Divider isDark={isDark} />
+                            </>
+                        ) : null}
                         <Divider isDark={isDark} />
                         <SettingItem 
                             icon={settings?.theme === 'dark' ? <Feather name="moon" color={theme.colors.secondary} size={20} /> : (settings?.theme === 'light' ? <Feather name="sun" color={theme.colors.warning} size={20} /> : <Feather name="monitor" color={theme.colors.accent} size={20} />)}
@@ -268,6 +395,15 @@ export default function ProfileScreen({ navigation }) {
                             desc={settings?.theme === 'dark' ? "Always Dark" : (settings?.theme === 'light' ? "Always Light" : "Follow System")}
                             right={<Text style={styles.cycleLabel}>CYCLE</Text>}
                             onPress={cycleTheme}
+                            isDark={isDark}
+                        />
+                        <Divider isDark={isDark} />
+                        <SettingItem
+                            icon={<Feather name="flag" color={theme.colors.secondary} size={20} />}
+                            title="Chat reports"
+                            desc="Messages you reported (this device if not signed in)"
+                            right={<Feather name="chevron-right" color={isDark ? theme.dark.textSub : theme.light.textSub} size={18} />}
+                            onPress={() => navigation.navigate('MyChatReports')}
                             isDark={isDark}
                         />
                         <Divider isDark={isDark} />
@@ -539,6 +675,40 @@ const styles = StyleSheet.create({
     divider: {
         height: 1,
         marginHorizontal: theme.spacing.lg,
+    },
+    reminderRow: {
+        marginTop: 10,
+    },
+    reminderLabel: {
+        ...theme.typography.caption,
+        marginBottom: 10,
+    },
+    reminderPills: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    reminderPill: {
+        flex: 1,
+        marginRight: 10,
+        borderRadius: 16,
+        borderWidth: 1,
+        paddingVertical: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    reminderPillText: {
+        fontSize: 13,
+        fontWeight: '800',
+    },
+    reminderHint: {
+        ...theme.typography.small,
+        marginTop: 10,
+        opacity: 0.7,
+    },
+    reminderError: {
+        ...theme.typography.small,
+        marginTop: 8,
+        opacity: 0.95,
     },
     signOutBtn: {
         flexDirection: 'row',

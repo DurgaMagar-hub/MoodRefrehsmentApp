@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions, Animated, Easing } from 'react-native';
 import SafeScreen from '../components/SafeScreen';
 import { theme } from '../styles/theme';
+import { formatDeviceDate } from '../utils/deviceTime';
 import { MoodContext } from '../context/MoodContext';
 import Card from '../components/Card';
 import { Feather } from '@expo/vector-icons';
@@ -42,7 +43,9 @@ const AnimatedJournalCard = ({ entry, index, isDark, onPress }) => {
                         <View style={styles.badgeRow}>
                             <View style={[styles.dateBadge, { backgroundColor: isDark ? theme.colors.primaryDark : theme.colors.primary }]}>
                                 <Text style={styles.dateText}>
-                                    {new Date(entry.createdAt || Date.now()).toLocaleDateString(undefined, { day: '2-digit', month: 'short' }).toUpperCase()}
+                                    {(formatDeviceDate(entry.createdAt, { day: '2-digit', month: 'short' }) ||
+                                        formatDeviceDate(Date.now(), { day: '2-digit', month: 'short' })
+                                    ).toUpperCase()}
                                 </Text>
                             </View>
                             <View style={[styles.moodBadge, { backgroundColor: isDark ? theme.colors.glassDark : theme.light.border }]}>
@@ -54,7 +57,34 @@ const AnimatedJournalCard = ({ entry, index, isDark, onPress }) => {
                         </View>
                     </View>
 
-                    <Text style={[styles.entryTitle, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>{entry.title}</Text>
+                    {(() => {
+                        let styleObj = null;
+                        try {
+                            styleObj = typeof entry.style === 'string' ? JSON.parse(entry.style) : entry.style;
+                        } catch (_) {
+                            styleObj = null;
+                        }
+                        const fontMap = {
+                            body: theme.fontFamily.body,
+                            bodyMedium: theme.fontFamily.bodyMedium,
+                            display: theme.fontFamily.displayMedium,
+                        };
+                        const titleColor =
+                            styleObj?.color && styleObj.color !== 'auto'
+                                ? styleObj.color
+                                : (isDark ? theme.dark.textMain : theme.light.textMain);
+                        const titleFont = fontMap[styleObj?.font] || theme.fontFamily.bodyMedium;
+                        return (
+                            <Text
+                                style={[
+                                    styles.entryTitle,
+                                    { color: titleColor, fontFamily: titleFont },
+                                ]}
+                            >
+                                {entry.title}
+                            </Text>
+                        );
+                    })()}
                     <Text 
                         numberOfLines={2} 
                         style={[styles.entryPreview, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}

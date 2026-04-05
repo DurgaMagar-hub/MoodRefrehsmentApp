@@ -102,14 +102,20 @@ Crucially, the authorization framework implements a strict Role-Based Access Con
 ### Sub-System 2: Mood Tracking and Analytics
 The Mood Tracking and Analytics subsystem is the primary data ingestion point for user emotional states. It empowers users to convert their subjective feelings into structured, trackable data, facilitating longitudinal psychological reflection.
 
-This module features a highly interactive UI component where users can utilize a sliding scale or discrete categorizations to log their current mood intensity, specific emotional descriptors (e.g., Joy, Anxiety, Exhaustion), and contextual notes. The backend validates and processes this telemetry, storing it within a NoSQL database schema optimized for time-series data retrieval. 
+This module features a highly interactive UI component where users can utilize a sliding scale or discrete categorizations to log their current mood intensity, specific emotional descriptors (e.g., Joy, Anxiety, Exhaustion), and lightweight context signals. The backend validates and processes this telemetry, storing it for time-series retrieval.
+
+To maximize engagement and reduce friction, the check-in flow is intentionally “fast & fun”:
+- **Mood Picker (emoji-based)**: playful emoji moods with an energy slider.
+- **Tap-to-select Vibe Tags**: quick, optional tags such as “Feeling Chill”, “Power Mode”, and “Sassy Vibes”.
+- **Quick Context Sliders**: optional, non-overwhelming sliders for **stress** and **sleep** to enrich mood data without requiring long notes.
+- **Mini‑Mood Challenges**: a tiny daily challenge (e.g., track smiles or do a short reset) to gamify the habit loop.
 
 The analytical component of this subsystem aggregates the historical data and renders it via the MoodGraph component on the frontend. Using charting libraries, the system dynamically plots mood trajectories over time. The backend performs basic analytical processing to highlight trends, calculate moving averages of mood states, and present this information back to the user in a digestible, visually appealing format. This feedback loop is essential for cognitive behavioral awareness, allowing users to visually identify which days or periods correlate with lower emotional states and prompting proactive self-care.
 
 ### Sub-System 3: Journal and Self-Reflection
 Closely allied with mood tracking is the Journal and Self-Reflection subsystem. This module provides a secure, private canvas for users to practice expressive writing—a proven psychological tool for managing stress and clarifying thoughts.
 
-The architecture of this subsystem treats journal entries with the highest level of data isolation. When a user submits a journal entry, the frontend text editor, which supports rich text formatting, sanitizes the input to prevent injection attacks before transmitting the payload to the server. The backend associates the entry strictly with the authenticated user's unique identifier.
+The architecture of this subsystem treats journal entries with the highest level of data isolation. When a user submits a journal entry, the frontend editor captures the reflection text plus a lightweight **Text Customizer** payload (font choice, text size, text color, alignment, bold/italic/underline toggles, and a page theme tint). These style settings apply to the whole entry and are stored as a serialized `style` field alongside the entry. The backend associates each entry strictly with the authenticated user's unique identifier.
 
 Read and write operations within the Journal controller are heavily guarded by authorization middleware, ensuring that a user can only query their own repository. The subsystem also includes search and filtering capabilities, allowing users to review past entries by date or associated mood, facilitating deeper retrospective analysis of their mental health journey. The interface is meticulously designed to be distraction-free, minimizing cognitive load and encouraging free-flowing introspection.
 

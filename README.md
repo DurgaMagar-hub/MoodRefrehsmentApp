@@ -1,16 +1,50 @@
-# React + Vite
+# Mood Refreshment
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This repository contains:
 
-Currently, two official plugins are available:
+- **`mobile/`** — Expo / React Native app (Android / iOS).
+- **`server/`** — REST API and Socket.IO backend (SQLite).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## API
 
-## React Compiler
+From the repo root (use a `.env` next to `server/` as you already do for email, etc.):
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+npm run server
+```
 
-## Expanding the ESLint configuration
+## Mobile app
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+cd mobile
+npm install
+npm run android
+```
+
+The app expects the API on port **3001** (see `mobile/src/config.js` and optional `mobile/.env`).
+
+## Mood check-in UX (what’s implemented)
+
+- **Mood picker (fast & fun)**: energy slider + emoji-based mood selection.
+- **Instant insights**: weekly overview with charts + average energy.
+- **Feel‑good reminders**: optional daily notification “How’s your vibe today?” (set in Profile → Settings → Reminders).
+- **Celebrate progress**: streak + badges/achievements in Insights.
+
+## Journal “Text Customizer” (what’s implemented)
+
+- **Font**: choose between Clean / Bold / Serif styles.
+- **Text size**: quick presets (15 / 17 / 19 / 22).
+- **Text color**: Auto + a small palette (Ink / Blue / Green / Pink).
+- **Alignment**: left / center / right.
+- **Text styles**: bold / italic / underline (applies to the whole entry).
+- **Page themes**: Auto / Airy / Night / Nature background tints.
+- **Stickers**: one‑tap emoji inserts (✨ 🌿 ⭐ 💛 🌸 🫧).
+
+All customizations are saved per entry via the `style` field on `JournalEntries`.
+
+## Lint
+
+```bash
+npm run lint
+```

@@ -3,7 +3,7 @@
     "name": "Mood Refreshment",
     "slug": "mood-refreshment",
     "version": "1.0.0",
-    "scheme": "moodrefreshment",
+  "scheme": "com.moodrefreshment.app",
     "sdkVersion": "54.0.0",
     "orientation": "portrait",
     "platforms": [
@@ -24,6 +24,7 @@
     },
     "android": {
       "package": "com.moodrefreshment.app",
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "backgroundColor": "#0f0f1a",
         "foregroundImage": "./assets/android-icon-foreground.png"
@@ -34,13 +35,20 @@
     },
     "plugins": [
       "expo-web-browser",
-      "expo-font"
+      "expo-font",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.309516516518-54jfou32rvmcae264juq27boeo5go8u7"
+        }
+      ]
     ],
     "extra": {
       "eas": {
         "projectId": "4d80d18d-8b21-4079-a532-30dadbfc041e"
       },
-      "googleClientId": "309516516518-rq3rla7m3s5v1hqpif7pdpchm4slqu22.apps.googleusercontent.com"
+      "googleClientId": "309516516518-54jfou32rvmcae264juq27boeo5go8u7.apps.googleusercontent.com",
+      "googleAndroidClientId": "309516516518-374lijm8o92quolqtkfl7mdeeoq71hgl.apps.googleusercontent.com"
     }
   }
 }

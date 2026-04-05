@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useMemo } from 'react';
 import { 
     View, 
     Text, 
@@ -18,7 +18,6 @@ import { MoodContext } from '../context/MoodContext';
 import { Feather } from '@expo/vector-icons';
 import Card from '../components/Card';
 import Button from '../components/Button';
-import { summarizeJournalText } from '../utils/moodAnalytics';
 
 const { width } = Dimensions.get('window');
 
@@ -29,7 +28,17 @@ export default function JournalEntryScreen({ route, navigation }) {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
     const [mood, setMood] = useState("✨");
-    const [reflectionSummary, setReflectionSummary] = useState("");
+    const [showCustomizer, setShowCustomizer] = useState(false);
+    const [styleState, setStyleState] = useState({
+        font: 'body',
+        size: 17,
+        color: 'auto',
+        align: 'left',
+        bold: false,
+        italic: false,
+        underline: false,
+        theme: 'auto', // page theme: auto | airy | night | nature
+    });
 
     const moods = ["✨", "🌈", "☀️", "☁️", "🌧️", "🌙"];
 
@@ -40,23 +49,24 @@ export default function JournalEntryScreen({ route, navigation }) {
                 setTitle(existingEntry.title);
                 setContent(existingEntry.content);
                 setMood(existingEntry.mood || "✨");
+                if (existingEntry.style) {
+                    try {
+                        const parsed = typeof existingEntry.style === 'string' ? JSON.parse(existingEntry.style) : existingEntry.style;
+                        if (parsed && typeof parsed === 'object') setStyleState((prev) => ({ ...prev, ...parsed }));
+                    } catch (_) {}
+                }
             }
         }
     }, [id]);
-
-    useEffect(() => {
-        const t = setTimeout(() => {
-            if (content.trim().length > 24) setReflectionSummary(summarizeJournalText(content));
-            else setReflectionSummary("");
-        }, 550);
-        return () => clearTimeout(t);
-    }, [content]);
 
     const hasUnsavedChanges = () => {
         if (id) {
             const existingEntry = journalEntries.find(e => e.id === Number(id));
             if (!existingEntry) return false;
-            return title !== existingEntry.title || content !== existingEntry.content || mood !== existingEntry.mood;
+            const prevStyle = existingEntry.style;
+            const prevStyleKey = typeof prevStyle === 'string' ? prevStyle : JSON.stringify(prevStyle || {});
+            const currentStyleKey = JSON.stringify(styleState || {});
+            return title !== existingEntry.title || content !== existingEntry.content || mood !== existingEntry.mood || prevStyleKey !== currentStyleKey;
         }
         return title.trim() !== "" || content.trim() !== "";
     };
@@ -93,21 +103,57 @@ export default function JournalEntryScreen({ route, navigation }) {
         return () => backHandler.remove();
     }, [title, content, mood]);
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!title.trim()) {
             Alert.alert("Title Missing", "Please give your reflection a title.");
             return;
         }
 
-        if (id) {
-            updateJournalEntry(id, { title, content, mood });
-        } else {
-            addJournalEntry({ title, content, mood });
+        try {
+            if (id) {
+                await updateJournalEntry(id, { title, content, mood, style: styleState });
+            } else {
+                await addJournalEntry({ title, content, mood, style: styleState });
+            }
+            navigation.goBack();
+        } catch (_) {
+            Alert.alert("Couldn’t save", "Your entry could not be saved. Please make sure the server is running, then try again.");
         }
-        navigation.goBack();
     };
 
     const isDark = isDarkTheme;
+
+    const pageBg = useMemo(() => {
+        const t = styleState.theme;
+        if (t === 'night') return isDark ? 'rgba(8,18,30,0.65)' : 'rgba(8,18,30,0.14)';
+        if (t === 'nature') return isDark ? 'rgba(12,30,22,0.62)' : 'rgba(230, 250, 240, 0.60)';
+        if (t === 'airy') return isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.72)';
+        return isDark ? theme.colors.glassDark : theme.light.card;
+    }, [styleState.theme, isDark]);
+
+    const textColor = useMemo(() => {
+        if (styleState.color === 'auto') return isDark ? theme.dark.textMain : theme.light.textMain;
+        return styleState.color;
+    }, [styleState.color, isDark]);
+
+    const fontMap = {
+        body: theme.fontFamily.body,
+        bodyMedium: theme.fontFamily.bodyMedium,
+        display: theme.fontFamily.displayMedium,
+    };
+
+    const editorTextStyle = useMemo(
+        () => ({
+            fontSize: styleState.size,
+            fontFamily: fontMap[styleState.font] || theme.fontFamily.body,
+            color: textColor,
+            textAlign: styleState.align,
+            fontWeight: styleState.bold ? '800' : '500',
+            fontStyle: styleState.italic ? 'italic' : 'normal',
+            textDecorationLine: styleState.underline ? 'underline' : 'none',
+        }),
+        [styleState, textColor]
+    );
 
     return (
         <SafeScreen style={[styles.container, { backgroundColor: isDark ? theme.dark.background : theme.light.background }]}>
@@ -163,10 +209,172 @@ export default function JournalEntryScreen({ route, navigation }) {
                         </View>
                     </View>
 
+                    {/* Text Customizer Toggle */}
+                    <View style={styles.customizerBar}>
+                        <TouchableOpacity
+                            onPress={() => setShowCustomizer((s) => !s)}
+                            activeOpacity={0.85}
+                            style={[styles.customizerBtn, { backgroundColor: isDark ? theme.colors.glassDark : theme.light.backgroundSecondary, borderColor: isDark ? theme.dark.border : theme.light.border }]}
+                        >
+                            <Feather name="sliders" size={18} color={isDark ? theme.dark.textMain : theme.light.textMain} />
+                            <Text style={[styles.customizerBtnText, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>
+                                Text style
+                            </Text>
+                            <Feather name={showCustomizer ? "chevron-up" : "chevron-down"} size={18} color={isDark ? theme.dark.textSub : theme.light.textSub} />
+                        </TouchableOpacity>
+                    </View>
+
+                    {showCustomizer ? (
+                        <Card isDark={isDark} style={styles.customizerCard} intensity={isDark ? 30 : 70}>
+                            <Text style={[styles.customizerLabel, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>Font</Text>
+                            <View style={styles.pillRow}>
+                                {[
+                                    { id: 'body', label: 'Clean' },
+                                    { id: 'bodyMedium', label: 'Bold' },
+                                    { id: 'display', label: 'Serif' },
+                                ].map((opt) => {
+                                    const active = styleState.font === opt.id;
+                                    return (
+                                        <TouchableOpacity
+                                            key={opt.id}
+                                            onPress={() => setStyleState((s) => ({ ...s, font: opt.id }))}
+                                            style={[styles.pill, { backgroundColor: active ? theme.colors.primary + '22' : 'transparent', borderColor: active ? theme.colors.primary : (isDark ? theme.dark.border : theme.light.border) }]}
+                                        >
+                                            <Text style={[styles.pillText, { color: isDark ? theme.dark.textMain : theme.light.textMain, opacity: active ? 1 : 0.7 }]}>
+                                                {opt.label}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </View>
+
+                            <Text style={[styles.customizerLabel, { color: isDark ? theme.dark.textSub : theme.light.textSub, marginTop: 12 }]}>Size</Text>
+                            <View style={styles.pillRow}>
+                                {[15, 17, 19, 22].map((sz) => {
+                                    const active = styleState.size === sz;
+                                    return (
+                                        <TouchableOpacity
+                                            key={sz}
+                                            onPress={() => setStyleState((s) => ({ ...s, size: sz }))}
+                                            style={[styles.pill, { backgroundColor: active ? theme.colors.secondary + '22' : 'transparent', borderColor: active ? theme.colors.secondary : (isDark ? theme.dark.border : theme.light.border) }]}
+                                        >
+                                            <Text style={[styles.pillText, { color: isDark ? theme.dark.textMain : theme.light.textMain, opacity: active ? 1 : 0.7 }]}>
+                                                {sz}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </View>
+
+                            <Text style={[styles.customizerLabel, { color: isDark ? theme.dark.textSub : theme.light.textSub, marginTop: 12 }]}>Color</Text>
+                            <View style={styles.pillRow}>
+                                {[
+                                    { id: 'auto', swatch: null, label: 'Auto' },
+                                    { id: '#142033', swatch: '#142033', label: 'Ink' },
+                                    { id: '#2a6fdb', swatch: '#2a6fdb', label: 'Blue' },
+                                    { id: '#1f9d78', swatch: '#1f9d78', label: 'Green' },
+                                    { id: '#d14b8f', swatch: '#d14b8f', label: 'Pink' },
+                                ].map((opt) => {
+                                    const active = styleState.color === opt.id;
+                                    return (
+                                        <TouchableOpacity
+                                            key={opt.id}
+                                            onPress={() => setStyleState((s) => ({ ...s, color: opt.id }))}
+                                            style={[styles.pill, { backgroundColor: active ? theme.colors.accent + '22' : 'transparent', borderColor: active ? theme.colors.accent : (isDark ? theme.dark.border : theme.light.border) }]}
+                                        >
+                                            {opt.swatch ? <View style={[styles.swatch, { backgroundColor: opt.swatch }]} /> : null}
+                                            <Text style={[styles.pillText, { color: isDark ? theme.dark.textMain : theme.light.textMain, opacity: active ? 1 : 0.7 }]}>
+                                                {opt.label}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </View>
+
+                            <Text style={[styles.customizerLabel, { color: isDark ? theme.dark.textSub : theme.light.textSub, marginTop: 12 }]}>Alignment</Text>
+                            <View style={styles.pillRow}>
+                                {[
+                                    { id: 'left', icon: 'align-left' },
+                                    { id: 'center', icon: 'align-center' },
+                                    { id: 'right', icon: 'align-right' },
+                                ].map((opt) => {
+                                    const active = styleState.align === opt.id;
+                                    return (
+                                        <TouchableOpacity
+                                            key={opt.id}
+                                            onPress={() => setStyleState((s) => ({ ...s, align: opt.id }))}
+                                            style={[styles.iconPill, { backgroundColor: active ? theme.colors.primary + '22' : 'transparent', borderColor: active ? theme.colors.primary : (isDark ? theme.dark.border : theme.light.border) }]}
+                                        >
+                                            <Feather name={opt.icon} size={16} color={isDark ? theme.dark.textMain : theme.light.textMain} />
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </View>
+
+                            <Text style={[styles.customizerLabel, { color: isDark ? theme.dark.textSub : theme.light.textSub, marginTop: 12 }]}>Style</Text>
+                            <View style={styles.pillRow}>
+                                {[
+                                    { key: 'bold', label: 'Bold' },
+                                    { key: 'italic', label: 'Italic' },
+                                    { key: 'underline', label: 'Underline' },
+                                ].map((opt) => {
+                                    const active = !!styleState[opt.key];
+                                    return (
+                                        <TouchableOpacity
+                                            key={opt.key}
+                                            onPress={() => setStyleState((s) => ({ ...s, [opt.key]: !s[opt.key] }))}
+                                            style={[styles.pill, { backgroundColor: active ? theme.colors.secondary + '22' : 'transparent', borderColor: active ? theme.colors.secondary : (isDark ? theme.dark.border : theme.light.border) }]}
+                                        >
+                                            <Text style={[styles.pillText, { color: isDark ? theme.dark.textMain : theme.light.textMain, opacity: active ? 1 : 0.7 }]}>
+                                                {opt.label}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </View>
+
+                            <Text style={[styles.customizerLabel, { color: isDark ? theme.dark.textSub : theme.light.textSub, marginTop: 12 }]}>Page</Text>
+                            <View style={styles.pillRow}>
+                                {[
+                                    { id: 'auto', label: 'Auto' },
+                                    { id: 'airy', label: 'Airy' },
+                                    { id: 'night', label: 'Night' },
+                                    { id: 'nature', label: 'Nature' },
+                                ].map((opt) => {
+                                    const active = styleState.theme === opt.id;
+                                    return (
+                                        <TouchableOpacity
+                                            key={opt.id}
+                                            onPress={() => setStyleState((s) => ({ ...s, theme: opt.id }))}
+                                            style={[styles.pill, { backgroundColor: active ? theme.colors.accent + '22' : 'transparent', borderColor: active ? theme.colors.accent : (isDark ? theme.dark.border : theme.light.border) }]}
+                                        >
+                                            <Text style={[styles.pillText, { color: isDark ? theme.dark.textMain : theme.light.textMain, opacity: active ? 1 : 0.7 }]}>
+                                                {opt.label}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </View>
+
+                            <Text style={[styles.customizerLabel, { color: isDark ? theme.dark.textSub : theme.light.textSub, marginTop: 12 }]}>Stickers</Text>
+                            <View style={styles.pillRow}>
+                                {['✨', '🌿', '⭐', '💛', '🌸', '🫧'].map((em) => (
+                                    <TouchableOpacity
+                                        key={em}
+                                        onPress={() => setContent((c) => (c ? `${c} ${em}` : em))}
+                                        style={[styles.iconPill, { borderColor: isDark ? theme.dark.border : theme.light.border }]}
+                                    >
+                                        <Text style={{ fontSize: 16 }}>{em}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        </Card>
+                    ) : null}
+
                     {/* Content Editor */}
-                    <Card isDark={isDark} style={styles.editorCard} intensity={isDark ? 40 : 80}>
+                    <Card isDark={isDark} style={[styles.editorCard, { backgroundColor: pageBg }]} intensity={isDark ? 40 : 80}>
                         <TextInput 
-                            style={[styles.contentInput, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}
+                            style={[styles.contentInput, editorTextStyle]}
                             placeholder="Start writing..."
                             placeholderTextColor={isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'}
                             value={content}
@@ -176,18 +384,6 @@ export default function JournalEntryScreen({ route, navigation }) {
                             scrollEnabled={false}
                         />
                     </Card>
-
-                    {reflectionSummary ? (
-                        <Card isDark={isDark} style={styles.summaryCard} intensity={isDark ? 30 : 70}>
-                            <Text style={[styles.summaryLabel, { color: theme.colors.secondary }]}>Reflection snapshot</Text>
-                            <Text style={[styles.summaryText, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>
-                                {reflectionSummary}
-                            </Text>
-                            <Text style={[styles.summaryHint, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>
-                                On-device summary — connect an AI service later for deeper coaching.
-                            </Text>
-                        </Card>
-                    ) : null}
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeScreen>
@@ -296,9 +492,69 @@ const styles = StyleSheet.create({
         marginBottom: 40,
     },
     contentInput: {
-        fontSize: 17,
         lineHeight: 26,
-        fontWeight: '500',
         flex: 1,
     }
+    ,
+    customizerBar: {
+        marginBottom: 12,
+    },
+    customizerBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 12,
+        paddingHorizontal: 14,
+        borderRadius: 18,
+        borderWidth: 1,
+    },
+    customizerBtnText: {
+        ...theme.typography.subtitle,
+        flex: 1,
+        marginLeft: 10,
+    },
+    customizerCard: {
+        padding: 18,
+        borderRadius: 24,
+        marginBottom: 18,
+    },
+    customizerLabel: {
+        ...theme.typography.caption,
+        marginBottom: 10,
+    },
+    pillRow: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+    },
+    pill: {
+        width: '48%',
+        borderWidth: 1,
+        borderRadius: 16,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        marginBottom: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    iconPill: {
+        width: 44,
+        height: 40,
+        borderWidth: 1,
+        borderRadius: 14,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 10,
+        backgroundColor: 'transparent',
+    },
+    pillText: {
+        fontSize: 13,
+        fontWeight: '800',
+    },
+    swatch: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        marginRight: 8,
+    },
 });

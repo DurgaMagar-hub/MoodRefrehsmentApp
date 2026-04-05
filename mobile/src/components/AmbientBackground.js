@@ -106,9 +106,9 @@ function Blob({ colors, size, initialX, initialY, durationX, durationY, delay = 
 
 export default function AmbientBackground({ isDark }) {
     const canvas = isDark ? theme.gradients.darkCanvas : theme.gradients.lightCanvas;
-    const blobA = isDark ? ['rgba(91,33,182,0.55)', 'rgba(168,85,247,0.35)', 'rgba(168,85,247,0)'] : ['rgba(233,213,255,0.85)', 'rgba(245,208,254,0.45)', 'rgba(245,208,254,0)'];
-    const blobB = isDark ? ['rgba(157,23,77,0.45)', 'rgba(244,114,182,0.3)', 'transparent'] : ['rgba(252,231,243,0.9)', 'rgba(251,207,232,0.4)', 'transparent'];
-    const blobC = isDark ? ['rgba(120,53,15,0.4)', 'rgba(212,165,116,0.28)', 'transparent'] : ['rgba(254,243,199,0.95)', 'rgba(253,230,138,0.4)', 'transparent'];
+    const blobA = isDark ? theme.gradients.darkBlobA : theme.gradients.lightBlobA;
+    const blobB = isDark ? theme.gradients.darkBlobB : theme.gradients.lightBlobB;
+    const blobC = isDark ? theme.gradients.darkBlobC : theme.gradients.lightBlobC;
 
     return (
         <View pointerEvents="none" style={StyleSheet.absoluteFill}>
@@ -160,6 +160,6 @@ const styles = StyleSheet.create({
         width: 2,
         height: 2,
         borderRadius: 1,
-        backgroundColor: '#fce7f3',
+        backgroundColor: '#e9f2ff',
     },
 });

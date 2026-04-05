@@ -81,12 +81,12 @@ export default function MoodCheckScreen({ navigation }) {
         });
     };
 
-    const handleFinish = () => {
-        if (selectedMood) {
-            addMood({ ...selectedMood, energy });
-            trackEvent('mood_logged', { label: selectedMood.label, energy });
-            changeStep(4);
-        }
+    const handleFinish = async () => {
+        if (!selectedMood) return;
+
+        await addMood({ ...selectedMood, energy });
+        trackEvent('mood_logged', { label: selectedMood.label, energy });
+        changeStep(4);
     };
 
     const showCrisisResources = () => {
@@ -135,11 +135,11 @@ export default function MoodCheckScreen({ navigation }) {
                             <View style={styles.emojiContainer}>
                                 <Text style={styles.heroEmoji}>✨</Text>
                             </View>
-                            <Text style={[styles.title, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>Inner Check-in</Text>
+                            <Text style={[styles.title, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>Gentle check-in</Text>
                             <Text style={[styles.description, { color: isDark ? theme.dark.textSub : theme.light.textSub }]}>
-                                A brief pause to reconnect with your state of being.
+                                A small pause to notice how you are, without judgement.
                             </Text>
-                            <Button fullWidth onPress={() => changeStep(2)} style={styles.mainBtn}>Begin Scan</Button>
+                            <Button fullWidth onPress={() => changeStep(2)} style={styles.mainBtn}>Start</Button>
                         </View>
                     )}
 
@@ -175,7 +175,7 @@ export default function MoodCheckScreen({ navigation }) {
 
                     {step === 3 && (
                         <View style={styles.fullBox}>
-                            <Text style={[styles.stepTitle, { color: isDark ? theme.dark.textMain : theme.light.textMain, textAlign: 'center', marginBottom: 20 }]}>Current Vibe</Text>
+                            <Text style={[styles.stepTitle, { color: isDark ? theme.dark.textMain : theme.light.textMain, textAlign: 'center', marginBottom: 20 }]}>Pick a mood</Text>
                             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.moodGrid}>
                                 {filteredMoods.map((m) => (
                                     <TouchableOpacity 
@@ -197,10 +197,10 @@ export default function MoodCheckScreen({ navigation }) {
                             <Button 
                                 disabled={!selectedMood} 
                                 fullWidth 
-                                onPress={handleFinish} 
+                                onPress={handleFinish}
                                 style={{ marginTop: 20 }}
                             >
-                                Log Reflection
+                                Save check-in
                             </Button>
                         </View>
                     )}
@@ -210,19 +210,10 @@ export default function MoodCheckScreen({ navigation }) {
                             <View style={[styles.successEmojiContainer, { backgroundColor: selectedMood?.color + '22' }]}>
                                 <Text style={styles.heroEmoji}>{selectedMood?.emoji}</Text>
                             </View>
-                            <Text style={[styles.title, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>Recorded.</Text>
+                            <Text style={[styles.title, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>Saved.</Text>
                             <Text style={[styles.description, { color: isDark ? theme.dark.textSub : theme.light.textSub, marginBottom: 32 }]}>
                                 Your feeling of <Text style={{ fontWeight: '900', color: selectedMood?.color }}>{selectedMood?.label}</Text> has been archived.
                             </Text>
-                            
-                            <Card isDark={isDark} style={[styles.insightCard, { borderLeftColor: selectedMood?.color, borderLeftWidth: 4 }]}>
-                                <Text style={[styles.insightTitle, { color: selectedMood?.color }]}>AURA INSIGHT</Text>
-                                <Text style={[styles.insightText, { color: isDark ? theme.dark.textMain : theme.light.textMain }]}>
-                                    {energy < 40 ? 
-                                        "A lower energy state is perfect for deep introspection or resting your mind." : 
-                                        "With this high energy level, your capacity for focus and action is at its peak."}
-                                </Text>
-                            </Card>
 
                             {distress ? (
                                 <Card isDark={isDark} style={styles.crisisCard}>
@@ -231,17 +222,17 @@ export default function MoodCheckScreen({ navigation }) {
                                         Heavy moods are signals, not failures. If things feel overwhelming, please reach out to a trained counselor — it takes courage.
                                     </Text>
                                     <Button fullWidth onPress={showCrisisResources} variant="danger" style={{ marginTop: 12 }}>
-                                        Emergency & crisis resources
+                                        Get crisis support
                                     </Button>
                                     <TouchableOpacity onPress={() => navigation.navigate('Breathing')} style={{ marginTop: 16 }}>
                                         <Text style={[styles.calmLink, { color: theme.colors.secondary }]}>Try a 2‑minute breathing reset</Text>
                                     </TouchableOpacity>
-                                    <Button 
+                                    <Button
                                         variant="outline" 
                                         onPress={() => navigation.navigate('Home')} 
                                         style={{ marginTop: 16 }}
                                     >
-                                        Skip to Home
+                                        Go to Home
                                     </Button>
                                 </Card>
                             ) : null}

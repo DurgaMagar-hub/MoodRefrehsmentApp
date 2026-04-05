@@ -33,8 +33,13 @@ import ChatRoomScreen from './src/pages/ChatRoom';
 import MotivationScreen from './src/pages/Motivation';
 import ProfileScreen from './src/pages/Profile';
 import AdminDashboardScreen from './src/pages/AdminDashboard';
+import AdminChatReportsScreen from './src/pages/AdminChatReports';
+import MyChatReportsScreen from './src/pages/MyChatReports';
 
 const Stack = createNativeStackNavigator();
+
+// Notification handler intentionally disabled in this build.
+// If reminders are needed, rebuild native app with expo-notifications support.
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -79,7 +84,16 @@ export default function App() {
           <Stack.Screen name="ChatRoom" component={ChatRoomScreen} />
           <Stack.Screen name="Motivation" component={MotivationScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />
-          <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
+          <Stack.Screen
+            name="AdminDashboard"
+            component={AdminDashboardScreen}
+            options={{
+              gestureEnabled: false,
+              animation: 'fade_from_bottom',
+            }}
+          />
+          <Stack.Screen name="AdminChatReports" component={AdminChatReportsScreen} />
+          <Stack.Screen name="MyChatReports" component={MyChatReportsScreen} />
         </Stack.Navigator>
         <StatusBar style="auto" />
       </NavigationContainer>

@@ -32,6 +32,10 @@ export const testConnection = async () => {
     }
     
     console.log('❌ All connection attempts failed');
+    console.warn(
+        'API unreachable on port 3001. From the repo root run: npm run server\n' +
+            '(separate terminal). Emulator uses 10.0.2.2; a real phone needs your PC LAN IP or USB: adb reverse tcp:3001 tcp:3001 and EXPO_PUBLIC_DEV_API_HOST=127.0.0.1 in mobile/.env.'
+    );
     return { success: false, error: 'All URLs failed' };
 };
 
