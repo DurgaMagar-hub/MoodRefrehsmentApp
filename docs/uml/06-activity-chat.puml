@@ -1,0 +1,19 @@
+@startuml MoodRefreshment_Activity_Chat
+start
+:Open Emotion Rooms;
+:Select a room;
+:Join room;
+
+:Load chat history;
+:Show messages;
+
+repeat
+  :Type and send message;
+  :Broadcast to room;
+  :Save message in database;
+repeat while (In chat?) is (yes)
+->no;
+
+:Leave room;
+stop
+@enduml

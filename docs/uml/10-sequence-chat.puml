@@ -1,0 +1,20 @@
+@startuml MoodRefreshment_Sequence_Chat
+actor User
+participant "ChatRoomScreen" as App
+participant "Socket.IO Server" as IO
+database "ChatMessages" as DB
+
+User -> App : Type & send message
+App -> IO : emit send_message\n{room, senderName, text, color, senderUserId}
+IO -> DB : INSERT ChatMessages
+DB --> IO : message id
+IO -> IO : mapChatRow()
+IO -> App : emit receive_message (to room)
+App --> User : Display message in list
+
+note over App, IO
+  Requires authenticated session
+  (Splash → Login → Home → Chat)
+  senderUserId from logged-in user
+end note
+@enduml

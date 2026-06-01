@@ -1,0 +1,16 @@
+@startuml MoodRefreshment_Activity_MoodCheck
+start
+:Open Mood Check;
+:Select mood and energy;
+:Save check-in;
+
+:Store in database;
+:Update mood history;
+
+if (View insights?) then (yes)
+  :Show Mood Insights;
+else (no)
+  :Return to Home;
+endif
+stop
+@enduml

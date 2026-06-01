@@ -1,0 +1,64 @@
+@startuml MoodRefreshment_ERD
+hide circle
+
+entity Users {
+  * id <<PK>>
+  --
+  email
+  name
+  role
+}
+
+entity MoodEntries {
+  * id <<PK>>
+  --
+  userId <<FK>>
+  mood
+  energy
+}
+
+entity JournalEntries {
+  * id <<PK>>
+  --
+  userId <<FK>>
+  title
+  content
+}
+
+entity DailyDrops {
+  * id <<PK>>
+  --
+  text
+  author
+}
+
+entity UserMotivationQuotes {
+  * id <<PK>>
+  --
+  userId <<FK>>
+  text
+}
+
+entity ChatMessages {
+  * id <<PK>>
+  --
+  roomName
+  senderName
+  text
+}
+
+entity ChatReports {
+  * id <<PK>>
+  --
+  messageId <<FK>>
+  reporterUserId <<FK>>
+  reason
+}
+
+Users ||--o{ MoodEntries
+Users ||--o{ JournalEntries
+Users ||--o{ UserMotivationQuotes
+ChatMessages ||--o{ ChatReports
+Users ||--o{ ChatReports
+
+@enduml

@@ -1,0 +1,18 @@
+@startuml MoodRefreshment_Sequence_MoodLog
+actor User
+participant "MoodCheckScreen" as UI
+participant "MoodProvider" as Ctx
+participant "Express API" as API
+database "MoodEntries" as DB
+
+User -> UI : Submit mood check-in
+UI -> Ctx : addMood(mood, energy, ...)
+Ctx -> API : POST /api/moods\n{userId, mood, energy, stress, sleep, tags}
+API -> DB : INSERT MoodEntries
+DB --> API : new row
+API --> Ctx : saved entry JSON
+Ctx -> Ctx : setMoodHistory + cache AsyncStorage
+Ctx -> Ctx : computeStreak / weekly / badges
+Ctx --> UI : updated insights
+UI --> User : Success + navigate Home/Insights
+@enduml

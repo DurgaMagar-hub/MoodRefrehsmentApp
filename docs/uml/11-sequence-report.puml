@@ -1,0 +1,31 @@
+@startuml MoodRefreshment_Sequence_Report
+actor User
+participant "ChatRoomScreen" as App
+participant "Express API" as API
+database "ChatMessages" as MSG
+database "ChatReports" as REP
+
+User -> App : Report message + reason
+App -> API : POST /api/chat-reports\n{messageId, reporterUserId, reason}
+
+API -> MSG : SELECT by messageId
+MSG --> API : message row
+
+alt Own message
+  API --> App : 400 Cannot report own message
+else Valid report
+  API -> REP : INSERT ChatReports
+  REP --> API : report id
+  API --> App : 200 success
+end
+
+User -> App : View My Reports
+App -> API : GET /api/chat-reports/mine?reporterUserId=...
+API --> App : list of reports
+
+note over API
+  reporterClientKey exists in API/schema
+  for device-based reports, but the app
+  flow requires Login first (no guest login)
+end note
+@enduml

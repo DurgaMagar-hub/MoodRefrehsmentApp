@@ -1,0 +1,25 @@
+@startuml MoodRefreshment_Activity_Navigation
+start
+:Splash;
+:Login;
+
+if (Login successful?) then (no)
+  :Show error;
+  stop
+else (yes)
+  if (Admin?) then (yes)
+    :Admin Dashboard;
+  else (no)
+    :Home;
+  endif
+endif
+
+:Mood Check;
+:Journal;
+:Emotion Rooms / Chat;
+:Motivation;
+:Breathing;
+:Profile;
+
+stop
+@enduml

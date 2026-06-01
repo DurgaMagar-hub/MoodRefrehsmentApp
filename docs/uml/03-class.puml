@@ -1,0 +1,75 @@
+@startuml MoodRefreshment_Class
+skinparam classAttributeIconSize 0
+
+package "Mobile App" {
+  class App {
+    +navigate()
+  }
+
+  class MoodProvider {
+    -user
+    -moodHistory
+    -journalEntries
+    +login()
+    +logout()
+    +addMood()
+    +addJournal()
+  }
+
+  class LoginScreen
+  class HomeScreen
+  class MoodCheckScreen
+  class JournalScreen
+  class ChatRoomScreen
+  class ProfileScreen
+  class AdminDashboardScreen
+}
+
+package "Server" {
+  class ExpressAPI {
+    +authRoutes()
+    +moodRoutes()
+    +journalRoutes()
+    +chatReportRoutes()
+  }
+
+  class SocketServer {
+    +join_room()
+    +send_message()
+  }
+
+  class AuthService {
+    +googleLogin()
+    +sendOTP()
+    +verifyOTP()
+  }
+
+  class SQLiteDB {
+    +query()
+    +insert()
+  }
+}
+
+App --> MoodProvider
+MoodProvider --> LoginScreen
+MoodProvider --> HomeScreen
+MoodProvider --> MoodCheckScreen
+MoodProvider --> JournalScreen
+
+HomeScreen --> MoodCheckScreen
+HomeScreen --> JournalScreen
+HomeScreen --> ChatRoomScreen
+HomeScreen --> ProfileScreen
+
+LoginScreen --> ExpressAPI
+MoodProvider --> ExpressAPI
+ChatRoomScreen --> SocketServer
+ChatRoomScreen --> ExpressAPI
+
+AdminDashboardScreen --> ExpressAPI
+
+ExpressAPI --> AuthService
+ExpressAPI --> SQLiteDB
+SocketServer --> SQLiteDB
+
+@enduml

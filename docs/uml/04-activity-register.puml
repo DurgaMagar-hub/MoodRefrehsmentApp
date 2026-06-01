@@ -1,0 +1,25 @@
+@startuml MoodRefreshment_Activity_Register
+start
+:Enter email and password;
+:Request OTP;
+
+if (Email already exists?) then (yes)
+  :Show error;
+  stop
+else (no)
+  :Send OTP to email;
+endif
+
+:Enter OTP code;
+:Verify OTP;
+
+if (OTP valid?) then (no)
+  :Show error;
+  stop
+else (yes)
+  :Create user in database;
+  :Save session locally;
+  :Go to Home;
+endif
+stop
+@enduml

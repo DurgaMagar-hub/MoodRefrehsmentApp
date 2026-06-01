@@ -1,0 +1,126 @@
+' Wireframes (Salt) — paste each @startsalt block separately if your tool requires it
+
+@startsalt
+{
+{T
++ Splash — Mood Refreshment
+++
+  [ Animated logo / aura ]
+  Loading...
+  (auto → Login after 3s)
+}
+}
+@endsalt
+
+@startsalt
+{
+{+
+Login | Mood Refreshment
+{
+  Email        | "user@email.com          "
+  Password     | "****************        "
+  [ Sign In ]
+  --
+  [ Continue with Google ]
+  --
+  [ Forgot Password? ] | [ Register with OTP ]
+}
+}
+}
+@endsalt
+
+@startsalt
+{
+{+
+Home | Welcome Back, {UserName}
+{
+  {/ <b>Aura / Last mood</b> | . | .
+     Last: 😊  Energy: 72%
+  }
+  --
+  {T
+  + Features
+  ++
+    [ Emotion Rooms  💬 ] | [ Mood Check 📊 ]
+    [ Journal 📔      ] | [ Motivation ✨ ]
+    [ Breathing 🌬️    ] | .
+  }
+  --
+  [ Profile 👤 ]
+}
+}
+}
+@endsalt
+
+@startsalt
+{
+{+
+Mood Check
+{
+  How are you feeling?
+  [ 😢 ] [ 😐 ] [ 🙂 ] [ 😄 ] [ 🔥 ]
+  --
+  Energy level
+  |========●=====|  65%
+  --
+  [ Save Check-in ]  [ View Insights → ]
+}
+}
+}
+@endsalt
+
+@startsalt
+{
+{+
+Emotion Rooms
+{
+  {T
+  + Room              | Online
+  ++
+    😢 Sad Support    | 3 ONLINE
+    😰 Anxiety Relief | 1 ONLINE
+    🔥 Motivation     | 5 ONLINE
+  }
+  [ ← Back ]
+}
+}
+}
+@endsalt
+
+@startsalt
+{
+{+
+Sad Support Chat | 3 online
+{
+  {T
+  + Messages
+  ++
+    🦊 Alex: "You're not alone..."
+    🐼 Sam:  "Thanks for sharing"
+    👤 You:  "Feeling better now"
+  }
+  --
+  [ Type a message...                    ] [ Send ]
+  [ Report ]  [ My Reports ]
+}
+}
+}
+@endsalt
+
+@startsalt
+{
+{+
+Admin Dashboard | 🛡️
+{
+  {T
+  + Management
+  ++
+    Users list (role, delete, promote)
+    Daily Drops carousel (add/delete)
+    Chat Reports (view/dismiss)
+  }
+  [ Logout ]
+}
+}
+}
+@endsalt

@@ -1,0 +1,28 @@
+@startuml MoodRefreshment_Sequence_GoogleAuth
+actor User
+participant "LoginScreen" as App
+participant "Express API" as API
+participant "Google OAuth" as Google
+database "SQLite Users" as DB
+
+User -> App : Tap Sign in with Google
+App -> Google : Obtain access token
+App -> API : POST /api/auth/google-custom\n{access_token}
+
+API -> Google : GET userinfo (Bearer token)
+Google --> API : {email, name}
+
+API -> DB : SELECT * FROM Users WHERE email=?
+
+alt User exists
+  DB --> API : user row
+  API --> App : 200 user JSON
+else New user
+  API -> DB : INSERT Users\n(anon display name, avatar, color)
+  DB --> API : new id
+  API --> App : user JSON
+end
+
+App -> App : AsyncStorage.setItem("user")
+App -> User : Navigate to Home
+@enduml

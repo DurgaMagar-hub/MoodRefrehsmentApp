@@ -1,0 +1,71 @@
+@startuml MoodRefreshment_UseCase
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Registered User" as User
+actor "System Admin" as Admin
+
+rectangle "Mood Refreshment App" {
+  usecase "View Splash" as UC_Splash
+  usecase "Sign In (Email/Password)" as UC_Login
+  usecase "Register via Email OTP" as UC_OTP
+  usecase "Sign In with Google" as UC_Google
+  usecase "Reset Password (OTP)" as UC_Reset
+
+  usecase "View Home Dashboard" as UC_Home
+  usecase "Log Mood Check-in" as UC_Mood
+  usecase "View Mood Insights" as UC_Insights
+  usecase "Write / Edit Journal" as UC_Journal
+  usecase "Breathing Exercise" as UC_Breath
+  usecase "View Daily Drops" as UC_Daily
+  usecase "Manage Personal Motivation Quotes" as UC_Mot
+  usecase "Join Emotion Room Chat" as UC_Chat
+  usecase "Report Chat Message" as UC_Report
+  usecase "View My Chat Reports" as UC_MyReports
+  usecase "Update Profile & Identity" as UC_Profile
+  usecase "Configure Settings & Reminders" as UC_Settings
+
+  usecase "Manage Users" as UC_AdminUsers
+  usecase "Manage Daily Drops Carousel" as UC_AdminDrops
+  usecase "View All Chat Reports" as UC_AdminReports
+  usecase "Dismiss Chat Reports" as UC_AdminDismiss
+  usecase "Access Admin Dashboard" as UC_AdminDash
+}
+
+User --> UC_Splash
+User --> UC_Login
+User --> UC_Google
+User --> UC_OTP
+User --> UC_Reset
+User --> UC_Home
+User --> UC_Mood
+User --> UC_Insights
+User --> UC_Journal
+User --> UC_Breath
+User --> UC_Daily
+User --> UC_Mot
+User --> UC_Chat
+User --> UC_Report
+User --> UC_MyReports
+User --> UC_Profile
+User --> UC_Settings
+
+Admin --|> User
+Admin --> UC_AdminDash
+Admin --> UC_AdminUsers
+Admin --> UC_AdminDrops
+Admin --> UC_AdminReports
+Admin --> UC_AdminDismiss
+
+UC_OTP ..> UC_Login : <<include>>
+UC_Reset ..> UC_Login : <<include>>
+UC_Mood ..> UC_Home : <<extend>>
+UC_Chat ..> UC_Report : <<extend>>
+
+note right of UC_Report
+  Logged-in: reporterUserId
+  (No guest login — auth required
+  to enter app via Login screen)
+end note
+
+@enduml
